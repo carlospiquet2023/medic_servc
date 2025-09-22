@@ -1453,15 +1453,53 @@
 
         async function openMedicineModal() {
             // Tentativa automática de carregar catálogo grande da pasta medicacoes
-            try {
-                const resp = await fetch('medicacoes/medicamentos_full.json');
-                if (resp.ok) {
-                    const data = await resp.json();
-                    applyMedicationsToMemory(data);
+            // Nota: quando hospedado em GitHub Pages o site pode estar em um subdiretório
+            // (ex: /<user>/<repo>/). Construímos a URL base de forma robusta e permitimos
+            // que o usuário sobrescreva via campo #externalMedUrl.
+            async function tryLoadMedicaments(paths) {
+                for (const p of paths) {
+                    if (!p) continue;
+                    try {
+                        const resp = await fetch(p);
+                        if (resp.ok) {
+                            const data = await resp.json();
+                            applyMedicationsToMemory(data);
+                            return true;
+                        }
+                    } catch (err) {
+                        // ignorar e tentar próximo caminho
+                        console.debug('Falha ao carregar', p, err.message || err);
+                    }
                 }
+                return false;
+            }
+
+            // detecta base path do site (tratando cases como GitHub Pages hospedado em /repo/)
+            const base = (function(){
+                try {
+                    // document.baseURI já dá a URL completa; transformamos em caminho relativo ao host
+                    const url = new URL(document.baseURI || window.location.href);
+                    return url.pathname.replace(/\/index\.html$|\/$/, '/') || '/';
+                } catch(e) {
+                    return '/';
+                }
+            })();
+
+            // caminhos a tentar, em ordem: campo configurável, caminho relativo simples e caminho ajustado ao base
+            const configured = (document.getElementById('externalMedUrl') && document.getElementById('externalMedUrl').value) || '';
+            const candidates = [
+                configured,
+                'medicacoes/medicamentos_full.json',
+                'medicacoes/medicamentos.json',
+                base.replace(/\/$/, '') + '/medicacoes/medicamentos_full.json',
+                base.replace(/\/$/, '') + '/medicacoes/medicamentos.json'
+            ].map(s => s ? s : null).filter(Boolean);
+
+            try {
+                const ok = await tryLoadMedicaments(candidates);
+                if (!ok) console.debug('Não foi possível carregar automaticamente o catálogo grande: nenhum dos caminhos funcionou');
             } catch (err) {
-                // fetch pode falhar em file:// — isso é esperado; apenas logamos
-                console.debug('Não foi possível carregar automaticamente o catálogo grande:', err.message);
+                console.debug('Erro inesperado ao tentar carregar catálogo:', err.message || err);
             }
 
             populateMedicineModal();
