@@ -571,7 +571,7 @@
                         </div>
                     <div class="form-group">
                         <label for="medicineDosage">Dosagem</label>
-                        <input type="text" id="medicineDosage" placeholder="Ex: 500mg">
+                        <input type="text" id="medicineDosage" placeholder="Ex: 500 mg">
                     </div>
                     <div class="form-group">
                         <label for="medicineQuantity">Quantidade</label>
@@ -872,6 +872,45 @@
             event.target.classList.add('active');
         }
 
+        // Handler para upload local de arquivo de medicamentos (JSON/CSV)
+        function handleMedFileUpload(files) {
+            if (!files || files.length === 0) return;
+            const f = files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                // tentar JSON primeiro
+                try {
+                    const parsed = JSON.parse(text);
+                    applyMedicationsToMemory(parsed);
+                    alert('Lista de medicamentos importada com sucesso (JSON).');
+                    return;
+                } catch (jsonErr) {
+                    // tentar CSV simples (colunas: nome_medicacao,dosagem,unidade ou name,dosage,unit)
+                    try {
+                        const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+                        const header = lines.shift().split(/,|;|\t/).map(h => h.trim().toLowerCase());
+                        const arr = lines.map(line => {
+                            const cols = line.split(/,|;|\t/).map(c => c.trim());
+                            const obj = {};
+                            header.forEach((h,i) => obj[h] = cols[i] || '');
+                            return obj;
+                        });
+                        applyMedicationsToMemory(arr);
+                        alert('Lista de medicamentos importada com sucesso (CSV).');
+                        return;
+                    } catch (csvErr) {
+                        console.debug('Falha ao parsear arquivo de medicações:', jsonErr.message || jsonErr, csvErr.message || csvErr);
+                        alert('Não foi possível importar o arquivo. Verifique o formato (JSON/CSV).');
+                    }
+                }
+            };
+            reader.onerror = function(e) {
+                alert('Erro ao ler o arquivo: ' + (e.message || e));
+            };
+            reader.readAsText(f, 'UTF-8');
+        }
+
         // Templates de medicamentos
         const medicineTemplates = {
             hipertensao: [
@@ -946,7 +985,7 @@
             if (template) {
                 template.forEach(medicine => {
                     document.getElementById('medicineName').value = medicine.name;
-                    document.getElementById('medicineDosage').value = medicine.dosage;
+                    // Campo dosagem removido, definir quantity e posology
                     document.getElementById('medicineQuantity').value = medicine.quantity;
                     document.getElementById('medicinePosology').value = medicine.posology;
                     addMedicine();
@@ -1276,10 +1315,11 @@
             const med = medicines.find(m => m.id === id);
             if (!med) return;
             document.getElementById('medicineName').value = med.name;
+            document.getElementById('medicineDosage').value = med.dosagem || '';
             // calcular dosagem sugerida
             const suggested = calculateDose(med);
             if (suggested) {
-                document.getElementById('medicineDosage').value = suggested.doseText;
+                // Campo dosagem removido, mas manter lógica para quantity e posology
                 document.getElementById('medicineQuantity').value = suggested.quantityText || '';
                 document.getElementById('medicinePosology').value = suggested.posology || '';
                 // mostrar explicação curta
@@ -1366,6 +1406,2220 @@
         }
 
         // Catálogo extenso de medicamentos (lista ilustrativa e não-exaustiva ~220 itens)
+        // Carregar medicamentos do JSON
+        const loadMedicamentosFromJSON = () => {
+            const medicamentos = [
+  {
+    "nome_medicacao": "Dipirona Monoidratada",
+    "dosagem": "500 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Paracetamol",
+    "dosagem": "750 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Ibuprofeno",
+    "dosagem": "600 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Amoxicilina",
+    "dosagem": "500 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Amoxicilina + Clavulanato de Potássio",
+    "dosagem": "875 mg + 125 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Azitromicina Di-hidratada",
+    "dosagem": "500 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Losartana Potássica",
+    "dosagem": "50 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Hidroclorotiazida",
+    "dosagem": "25 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Sinvastatina",
+    "dosagem": "20 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Omeprazol",
+    "dosagem": "20 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Cloridrato de Metformina",
+    "dosagem": "850 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Maleato de Enalapril",
+    "dosagem": "10 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Captopril",
+    "dosagem": "25 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Atenolol",
+    "dosagem": "50 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Clonazepam",
+    "dosagem": "2 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Alprazolam",
+    "dosagem": "1 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Cloridrato de Fluoxetina",
+    "dosagem": "20 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Cloridrato de Sertralina",
+    "dosagem": "50 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Nimesulida",
+    "dosagem": "100 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Diclofenaco Sódico",
+    "dosagem": "50 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Loratadina",
+    "dosagem": "10 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Maleato de Dexclorfeniramina",
+    "dosagem": "2 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Prednisona",
+    "dosagem": "20 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Dexametasona",
+    "dosagem": "4 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Ácido Acetilsalicílico",
+    "dosagem": "100 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Besilato de Anlodipino",
+    "dosagem": "5 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Furosemida",
+    "dosagem": "40 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Espironolactona",
+    "dosagem": "25 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Levotiroxina Sódica",
+    "dosagem": "50 mcg",
+    "unidade": "mcg"
+  },
+  {
+    "nome_medicacao": "Cloridrato de Tramadol",
+    "dosagem": "50 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Pantoprazol Sódico Sesqui-hidratado",
+    "dosagem": "40 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Domperidona",
+    "dosagem": "10 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Cloridrato de Metoclopramida",
+    "dosagem": "10 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Cefalexina",
+    "dosagem": "500 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Cloridrato de Ciprofloxacino",
+    "dosagem": "500 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Metronidazol",
+    "dosagem": "250 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Fluconazol",
+    "dosagem": "150 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Albendazol",
+    "dosagem": "400 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Ivermectina",
+    "dosagem": "6 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Cloridrato de Amitriptilina",
+    "dosagem": "25 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Tadalafila",
+    "dosagem": "20 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Citrato de Sildenafila",
+    "dosagem": "50 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Finasterida",
+    "dosagem": "1 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Cloridrato de Tansulosina",
+    "dosagem": "0.4 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Etinilestradiol + Levonorgestrel",
+    "dosagem": "0.03 mg + 0.15 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Sulfato Ferroso",
+    "dosagem": "40 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Ácido Fólico",
+    "dosagem": "5 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Cloridrato de Ciclobenzaprina",
+    "dosagem": "10 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Carisoprodol",
+    "dosagem": "300 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Isotretinoína",
+    "dosagem": "20 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Paracetamol Gotas",
+    "dosagem": "200 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Dipirona Gotas",
+    "dosagem": "500 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Amoxicilina Suspensão",
+    "dosagem": "250 mg/5ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Ibuprofeno Suspensão Oral",
+    "dosagem": "100 mg/5ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Salbutamol Spray",
+    "dosagem": "100 mcg",
+    "unidade": "mcg"
+  },
+  {
+    "nome_medicacao": "Brometo de Ipratrópio Solução para Inalação",
+    "dosagem": "0.25 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Insulina NPH",
+    "dosagem": "100 UI/ml",
+    "unidade": "UI/ml"
+  },
+  {
+    "nome_medicacao": "Insulina Regular",
+    "dosagem": "100 UI/ml",
+    "unidade": "UI/ml"
+  },
+  {
+    "nome_medicacao": "Heparina Sódica",
+    "dosagem": "5000 UI/ml",
+    "unidade": "UI/ml"
+  },
+  {
+    "nome_medicacao": "Enoxaparina Sódica",
+    "dosagem": "40 mg/0.4ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Varfarina Sódica",
+    "dosagem": "5 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Clopidogrel",
+    "dosagem": "75 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Rosuvastatina Cálcica",
+    "dosagem": "10 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Atorvastatina Cálcica",
+    "dosagem": "20 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Ezetimiba",
+    "dosagem": "10 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Glibenclamida",
+    "dosagem": "5 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Gliclazida",
+    "dosagem": "30 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Acarbose",
+    "dosagem": "50 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Pioglitazona",
+    "dosagem": "30 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Alopurinol",
+    "dosagem": "100 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Carbamazepina",
+    "dosagem": "200 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Fenitoína",
+    "dosagem": "100 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Ácido Valproico",
+    "dosagem": "250 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Gabapentina",
+    "dosagem": "300 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Pregabalina",
+    "dosagem": "75 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Topiramato",
+    "dosagem": "25 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Lamotrigina",
+    "dosagem": "100 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Risperidona",
+    "dosagem": "2 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Olanzapina",
+    "dosagem": "10 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Quetiapina",
+    "dosagem": "25 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Haloperidol",
+    "dosagem": "5 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Carbonato de Lítio",
+    "dosagem": "300 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Escitalopram",
+    "dosagem": "10 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Citalopram",
+    "dosagem": "20 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Paroxetina",
+    "dosagem": "20 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Venlafaxina",
+    "dosagem": "75 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Duloxetina",
+    "dosagem": "30 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Bupropiona",
+    "dosagem": "150 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Mirtazapina",
+    "dosagem": "30 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Trazodona",
+    "dosagem": "50 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Diazepam",
+    "dosagem": "10 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Bromazepam",
+    "dosagem": "3 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Lorazepam",
+    "dosagem": "2 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Midazolam",
+    "dosagem": "15 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Zolpidem",
+    "dosagem": "10 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Hidroxicloroquina",
+    "dosagem": "400 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Metotrexato",
+    "dosagem": "2.5 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Celecoxibe",
+    "dosagem": "200 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Etoricoxibe",
+    "dosagem": "90 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Meloxicam",
+    "dosagem": "15 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Piroxicam",
+    "dosagem": "20 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Tenoxicam",
+    "dosagem": "20 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Codeína + Paracetamol",
+    "dosagem": "30 mg + 500 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Tramadol + Paracetamol",
+    "dosagem": "37.5 mg + 325 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Morfina",
+    "dosagem": "10 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Oxicodona",
+    "dosagem": "10 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Metadona",
+    "dosagem": "5 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Fentanila Adesivo Transdérmico",
+    "dosagem": "25 mcg/h",
+    "unidade": "mcg/h"
+  },
+  {
+    "nome_medicacao": "Nitrato de Isossorbida",
+    "dosagem": "10 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Mononitrato de Isossorbida",
+    "dosagem": "20 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Propranolol",
+    "dosagem": "40 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Carvedilol",
+    "dosagem": "12.5 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Succinato de Metoprolol",
+    "dosagem": "25 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Bisoprolol",
+    "dosagem": "5 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Digoxina",
+    "dosagem": "0.25 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Amiodarona",
+    "dosagem": "200 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Propafenona",
+    "dosagem": "300 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Sotalol",
+    "dosagem": "160 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Verapamil",
+    "dosagem": "80 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Diltiazem",
+    "dosagem": "60 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Hidralazina",
+    "dosagem": "25 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Metildopa",
+    "dosagem": "250 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Clonidina",
+    "dosagem": "0.100 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Guaifenesina Xarope",
+    "dosagem": "100 mg/5ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Ambroxol Xarope Adulto",
+    "dosagem": "30 mg/5ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Carbocisteína Xarope Infantil",
+    "dosagem": "100 mg/5ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Acetilcisteína Granulado",
+    "dosagem": "600 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Montelucaste de Sódio",
+    "dosagem": "10 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Fumarato de Formoterol + Budesonida",
+    "dosagem": "12 mcg + 400 mcg",
+    "unidade": "mcg"
+  },
+  {
+    "nome_medicacao": "Salmeterol + Fluticasona",
+    "dosagem": "50 mcg + 250 mcg",
+    "unidade": "mcg"
+  },
+  {
+    "nome_medicacao": "Bromoprida",
+    "dosagem": "10 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Ondansetrona",
+    "dosagem": "8 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Hioscina",
+    "dosagem": "10 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Loperamida",
+    "dosagem": "2 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Ranitidina",
+    "dosagem": "150 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Famotidina",
+    "dosagem": "20 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Hidróxido de Alumínio + Hidróxido de Magnésio",
+    "dosagem": "60 mg/ml + 40 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Simeticona",
+    "dosagem": "40 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Lactulose Xarope",
+    "dosagem": "667 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Bisacodil",
+    "dosagem": "5 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Macrogol",
+    "dosagem": "10 g",
+    "unidade": "g"
+  },
+  {
+    "nome_medicacao": "Colírio Nafazolina",
+    "dosagem": "0.5 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Colírio Tobramicina",
+    "dosagem": "3 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Colírio Hipromelose",
+    "dosagem": "5 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Colírio Travoprosta",
+    "dosagem": "0.04 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Clotrimazol Creme",
+    "dosagem": "10 mg/g",
+    "unidade": "mg/g"
+  },
+  {
+    "nome_medicacao": "Miconazol Creme",
+    "dosagem": "20 mg/g",
+    "unidade": "mg/g"
+  },
+  {
+    "nome_medicacao": "Cetoconazol Shampoo",
+    "dosagem": "20 mg/g",
+    "unidade": "mg/g"
+  },
+  {
+    "nome_medicacao": "Nistatina Suspensão Oral",
+    "dosagem": "100.000 UI/ml",
+    "unidade": "UI/ml"
+  },
+  {
+    "nome_medicacao": "Aciclovir Creme",
+    "dosagem": "50 mg/g",
+    "unidade": "mg/g"
+  },
+  {
+    "nome_medicacao": "Adapaleno Gel",
+    "dosagem": "1 mg/g",
+    "unidade": "mg/g"
+  },
+  {
+    "nome_medicacao": "Peróxido de Benzoíla Gel",
+    "dosagem": "50 mg/g",
+    "unidade": "mg/g"
+  },
+  {
+    "nome_medicacao": "Hidroquinona Creme",
+    "dosagem": "40 mg/g",
+    "unidade": "mg/g"
+  },
+  {
+    "nome_medicacao": "Sulfadiazina de Prata Creme",
+    "dosagem": "10 mg/g",
+    "unidade": "mg/g"
+  },
+  {
+    "nome_medicacao": "Neomicina + Bacitracina Pomada",
+    "dosagem": "5 mg/g + 250 UI/g",
+    "unidade": "mg/g + UI/g"
+  },
+  {
+    "nome_medicacao": "Valeriana Officinalis",
+    "dosagem": "50 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Ginkgo Biloba",
+    "dosagem": "80 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Cinarizina",
+    "dosagem": "25 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Betaistina",
+    "dosagem": "16 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Donepezila",
+    "dosagem": "5 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Rivastigmina",
+    "dosagem": "1.5 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Memantina",
+    "dosagem": "10 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Levodopa + Benserazida",
+    "dosagem": "200 mg + 50 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Pramipexol",
+    "dosagem": "0.25 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Biperideno",
+    "dosagem": "2 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Secnidazol",
+    "dosagem": "1000 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Tinidazol",
+    "dosagem": "500 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Permetrina Loção",
+    "dosagem": "50 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Deltametrina Shampoo",
+    "dosagem": "0.2 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Polivitamínico de A a Z",
+    "dosagem": "1 comprimido",
+    "unidade": "unidade"
+  },
+  {
+    "nome_medicacao": "Carbonato de Cálcio + Vitamina D3",
+    "dosagem": "500 mg + 400 UI",
+    "unidade": "mg + UI"
+  },
+  {
+    "nome_medicacao": "Cloreto de Magnésio",
+    "dosagem": "33 g",
+    "unidade": "g"
+  },
+  {
+    "nome_medicacao": "Colágeno Hidrolisado",
+    "dosagem": "10 g",
+    "unidade": "g"
+  },
+  {
+    "nome_medicacao": "Cefadroxila",
+    "dosagem": "500 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Cefuroxima",
+    "dosagem": "250 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Ceftriaxona Injetável",
+    "dosagem": "1 g",
+    "unidade": "g"
+  },
+  {
+    "nome_medicacao": "Clindamicina",
+    "dosagem": "300 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Doxiciclina",
+    "dosagem": "100 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Levofloxacino",
+    "dosagem": "500 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Norfloxacino",
+    "dosagem": "400 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Nitrofurantoína",
+    "dosagem": "100 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Penicilina G Benzatina Injetável",
+    "dosagem": "1.200.000 UI",
+    "unidade": "UI"
+  },
+  {
+    "nome_medicacao": "Sulfametoxazol + Trimetoprima",
+    "dosagem": "400 mg + 80 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Tetraciclina",
+    "dosagem": "500 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Vancomicina Injetável",
+    "dosagem": "500 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Anfotericina B",
+    "dosagem": "50 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Itraconazol",
+    "dosagem": "100 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Terbinafina",
+    "dosagem": "250 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Oseltamivir",
+    "dosagem": "75 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Valaciclovir",
+    "dosagem": "500 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Tenofovir",
+    "dosagem": "300 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Lamivudina",
+    "dosagem": "150 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Praziquantel",
+    "dosagem": "600 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Tibolona",
+    "dosagem": "2.5 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Estradiol",
+    "dosagem": "1 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Progesterona",
+    "dosagem": "100 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Testosterona Gel",
+    "dosagem": "50 mg/5g",
+    "unidade": "mg/g"
+  },
+  {
+    "nome_medicacao": "Dutasterida",
+    "dosagem": "0.5 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Candesartana",
+    "dosagem": "8 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Valsartana",
+    "dosagem": "160 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Olmesartana",
+    "dosagem": "20 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Irbesartana",
+    "dosagem": "150 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Lisinopril",
+    "dosagem": "10 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Ramipril",
+    "dosagem": "5 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Indapamida",
+    "dosagem": "1.5 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Clortalidona",
+    "dosagem": "25 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Rivaroxabana",
+    "dosagem": "20 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Apixabana",
+    "dosagem": "5 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Dabigatrana",
+    "dosagem": "150 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Ticagrelor",
+    "dosagem": "90 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Prasugrel",
+    "dosagem": "10 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Sacubitril + Valsartana",
+    "dosagem": "24 mg + 26 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Dapagliflozina",
+    "dosagem": "10 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Empagliflozina",
+    "dosagem": "10 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Sitagliptina",
+    "dosagem": "100 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Vildagliptina",
+    "dosagem": "50 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Linagliptina",
+    "dosagem": "5 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Liraglutida",
+    "dosagem": "0.6 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Semaglutida",
+    "dosagem": "1 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Risedronato Sódico",
+    "dosagem": "35 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Ácido Ibandrônico",
+    "dosagem": "150 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Raloxifeno",
+    "dosagem": "60 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Teriparatida",
+    "dosagem": "20 mcg",
+    "unidade": "mcg"
+  },
+  {
+    "nome_medicacao": "Colchicina",
+    "dosagem": "0.5 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Febuxostate",
+    "dosagem": "80 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Hidroxizina",
+    "dosagem": "25 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Desloratadina",
+    "dosagem": "5 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Levocetirizina",
+    "dosagem": "5 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Fexofenadina",
+    "dosagem": "180 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Prometazina",
+    "dosagem": "25 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Bilastina",
+    "dosagem": "20 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Sumatriptana",
+    "dosagem": "100 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Naratriptana",
+    "dosagem": "2.5 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Zolmitriptana",
+    "dosagem": "2.5 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Ergotamina + Cafeína",
+    "dosagem": "1 mg + 100 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Cloridrato de Metilfenidato",
+    "dosagem": "10 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Lisdexanfetamina",
+    "dosagem": "30 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Atomoxetina",
+    "dosagem": "40 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Aripiprazol",
+    "dosagem": "10 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Ziprasidona",
+    "dosagem": "40 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Paliperidona",
+    "dosagem": "6 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Levomepromazina",
+    "dosagem": "25 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Clorpromazina",
+    "dosagem": "100 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Flufenazina",
+    "dosagem": "25 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Tioridazina",
+    "dosagem": "100 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Imipramina",
+    "dosagem": "25 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Clomipramina",
+    "dosagem": "25 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Nortriptilina",
+    "dosagem": "10 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Maprotilina",
+    "dosagem": "75 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Desvenlafaxina",
+    "dosagem": "50 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Agomelatina",
+    "dosagem": "25 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Reboxetina",
+    "dosagem": "4 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Amantadina",
+    "dosagem": "100 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Selegilina",
+    "dosagem": "5 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Rasagilina",
+    "dosagem": "1 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Entacapona",
+    "dosagem": "200 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Tolcapona",
+    "dosagem": "100 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Ropinirol",
+    "dosagem": "0.25 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Mesalazina",
+    "dosagem": "800 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Sulfassalazina",
+    "dosagem": "500 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Azatioprina",
+    "dosagem": "50 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Ciclosporina",
+    "dosagem": "100 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Tacrolimo",
+    "dosagem": "1 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Micofenolato de Mofetila",
+    "dosagem": "500 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Adalimumabe",
+    "dosagem": "40 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Etanercepte",
+    "dosagem": "50 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Infliximabe",
+    "dosagem": "100 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Rituximabe",
+    "dosagem": "100 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Trastuzumabe",
+    "dosagem": "150 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Bevacizumabe",
+    "dosagem": "100 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Cetuximabe",
+    "dosagem": "100 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Pembrolizumabe",
+    "dosagem": "100 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Nivolumabe",
+    "dosagem": "100 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Capecitabina",
+    "dosagem": "500 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Imatinibe",
+    "dosagem": "400 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Gefitinibe",
+    "dosagem": "250 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Erlotinibe",
+    "dosagem": "150 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Sorafenibe",
+    "dosagem": "200 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Sunitinibe",
+    "dosagem": "50 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Pazopanibe",
+    "dosagem": "400 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Tamoxifeno",
+    "dosagem": "20 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Anastrozol",
+    "dosagem": "1 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Letrozol",
+    "dosagem": "2.5 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Exemestano",
+    "dosagem": "25 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Bicalutamida",
+    "dosagem": "50 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Flutamida",
+    "dosagem": "250 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Acetato de Ciproterona",
+    "dosagem": "50 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Acetato de Leuprorrelina",
+    "dosagem": "3.75 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Goserelina",
+    "dosagem": "3.6 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Fosfato de Sódio de Prednisolona Solução Oral",
+    "dosagem": "1 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Hidrocortisona Injetável",
+    "dosagem": "100 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Metilprednisolona",
+    "dosagem": "40 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Triancinolona Acetonida",
+    "dosagem": "40 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Betametasona Creme",
+    "dosagem": "1 mg/g",
+    "unidade": "mg/g"
+  },
+  {
+    "nome_medicacao": "Desonida Loção",
+    "dosagem": "0.5 mg/g",
+    "unidade": "mg/g"
+  },
+  {
+    "nome_medicacao": "Mometasona Spray Nasal",
+    "dosagem": "50 mcg",
+    "unidade": "mcg"
+  },
+  {
+    "nome_medicacao": "Fluticasona Spray Nasal",
+    "dosagem": "50 mcg",
+    "unidade": "mcg"
+  },
+  {
+    "nome_medicacao": "Budesonida Capsula Inalatória",
+    "dosagem": "200 mcg",
+    "unidade": "mcg"
+  },
+  {
+    "nome_medicacao": "Ibuprofeno Gotas Infantil",
+    "dosagem": "50 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Cefaclor Suspensão",
+    "dosagem": "250 mg/5ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Sulfato de Salbutamol Xarope",
+    "dosagem": "2 mg/5ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Levodropropizina Xarope",
+    "dosagem": "30 mg/5ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Vitamina C Gotas",
+    "dosagem": "200 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Vitamina D Gotas",
+    "dosagem": "200 UI",
+    "unidade": "UI"
+  },
+  {
+    "nome_medicacao": "Cloreto de Potássio",
+    "dosagem": "600 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Orlistate",
+    "dosagem": "120 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Sibutramina",
+    "dosagem": "15 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Tiamina (Vitamina B1)",
+    "dosagem": "300 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Piridoxina (Vitamina B6)",
+    "dosagem": "40 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Biotina",
+    "dosagem": "5 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Pentoxifilina",
+    "dosagem": "400 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Ginkgo Biloba",
+    "dosagem": "120 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Diosmina + Hesperidina",
+    "dosagem": "450 mg + 50 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Casta-da-Índia",
+    "dosagem": "100 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Dropropizina Xarope",
+    "dosagem": "1.5 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Cloperastina Xarope",
+    "dosagem": "3.54 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Trimebutina",
+    "dosagem": "200 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Pinaverio",
+    "dosagem": "100 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Racecadotrila",
+    "dosagem": "100 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Saccharomyces boulardii",
+    "dosagem": "100 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Metilcelulose",
+    "dosagem": "500 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Plantago ovata",
+    "dosagem": "5 g",
+    "unidade": "g"
+  },
+  {
+    "nome_medicacao": "Alfaepoetina",
+    "dosagem": "4000 UI",
+    "unidade": "UI"
+  },
+  {
+    "nome_medicacao": "Filgrastim",
+    "dosagem": "300 mcg",
+    "unidade": "mcg"
+  },
+  {
+    "nome_medicacao": "Somatropina",
+    "dosagem": "12 UI",
+    "unidade": "UI"
+  },
+  {
+    "nome_medicacao": "Octreotida",
+    "dosagem": "0.1 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Calcitonina Spray Nasal",
+    "dosagem": "200 UI",
+    "unidade": "UI"
+  },
+  {
+    "nome_medicacao": "Alendronato de Sódio",
+    "dosagem": "70 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Pamidronato Dissódico",
+    "dosagem": "90 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Ácido Zoledrônico",
+    "dosagem": "4 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Denosumabe",
+    "dosagem": "60 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Cinacalcete",
+    "dosagem": "30 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Sevelamer",
+    "dosagem": "800 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Cloreto de Cálcio",
+    "dosagem": "100 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Gliconato de Cálcio",
+    "dosagem": "100 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Sulfato de Magnésio",
+    "dosagem": "500 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Bicarbonato de Sódio",
+    "dosagem": "84 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Glicose 50%",
+    "dosagem": "500 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Soro Fisiológico",
+    "dosagem": "9 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Água para Injeção",
+    "dosagem": "10 ml",
+    "unidade": "ml"
+  },
+  {
+    "nome_medicacao": "Propofol",
+    "dosagem": "10 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Etomidato",
+    "dosagem": "2 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Cetamina",
+    "dosagem": "50 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Succinilcolina",
+    "dosagem": "100 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Rocurônio",
+    "dosagem": "50 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Vecurônio",
+    "dosagem": "10 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Lidocaína Geleia",
+    "dosagem": "20 mg/g",
+    "unidade": "mg/g"
+  },
+  {
+    "nome_medicacao": "Lidocaína Injetável",
+    "dosagem": "20 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Bupivacaína",
+    "dosagem": "5 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Ropivacaína",
+    "dosagem": "7.5 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Norepinefrina",
+    "dosagem": "1 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Epinefrina",
+    "dosagem": "1 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Dobutamina",
+    "dosagem": "12.5 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Nitroprussiato de Sódio",
+    "dosagem": "25 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Nitroglicerina",
+    "dosagem": "5 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Isoprenalina",
+    "dosagem": "0.2 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Atropina",
+    "dosagem": "0.25 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Adenosina",
+    "dosagem": "3 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Manitol Solução",
+    "dosagem": "200 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Imunoglobulina Humana",
+    "dosagem": "5 g",
+    "unidade": "g"
+  },
+  {
+    "nome_medicacao": "Albumina Humana",
+    "dosagem": "200 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Fator VIII de Coagulação",
+    "dosagem": "250 UI",
+    "unidade": "UI"
+  },
+  {
+    "nome_medicacao": "Fator IX de Coagulação",
+    "dosagem": "500 UI",
+    "unidade": "UI"
+  },
+  {
+    "nome_medicacao": "Complexo Protrombínico",
+    "dosagem": "500 UI",
+    "unidade": "UI"
+  },
+  {
+    "nome_medicacao": "Fitomenadiona (Vitamina K)",
+    "dosagem": "10 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Protamina",
+    "dosagem": "10 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Ácido Tranexâmico",
+    "dosagem": "250 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Desmopressina",
+    "dosagem": "4 mcg/ml",
+    "unidade": "mcg/ml"
+  },
+  {
+    "nome_medicacao": "Ocitocina",
+    "dosagem": "5 UI/ml",
+    "unidade": "UI/ml"
+  },
+  {
+    "nome_medicacao": "Misoprostol",
+    "dosagem": "25 mcg",
+    "unidade": "mcg"
+  },
+  {
+    "nome_medicacao": "Metilergometrina",
+    "dosagem": "0.2 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Alprostadil",
+    "dosagem": "20 mcg",
+    "unidade": "mcg"
+  },
+  {
+    "nome_medicacao": "Soro Antirrábico",
+    "dosagem": "1000 UI",
+    "unidade": "UI"
+  },
+  {
+    "nome_medicacao": "Soro Antitetânico",
+    "dosagem": "5000 UI",
+    "unidade": "UI"
+  },
+  {
+    "nome_medicacao": "Vacina Tríplice Viral",
+    "dosagem": "0.5 ml",
+    "unidade": "ml"
+  },
+  {
+    "nome_medicacao": "Vacina contra Influenza",
+    "dosagem": "0.5 ml",
+    "unidade": "ml"
+  },
+  {
+    "nome_medicacao": "Vacina contra Hepatite B",
+    "dosagem": "1 ml",
+    "unidade": "ml"
+  },
+  {
+    "nome_medicacao": "Vacina BCG",
+    "dosagem": "0.1 ml",
+    "unidade": "ml"
+  },
+  {
+    "nome_medicacao": "Vacina contra HPV",
+    "dosagem": "0.5 ml",
+    "unidade": "ml"
+  },
+  {
+    "nome_medicacao": "Vacina DTPa",
+    "dosagem": "0.5 ml",
+    "unidade": "ml"
+  },
+  {
+    "nome_medicacao": "Vacina Pneumocócica 13-valente",
+    "dosagem": "0.5 ml",
+    "unidade": "ml"
+  },
+  {
+    "nome_medicacao": "Vacina contra Rotavírus",
+    "dosagem": "1.5 ml",
+    "unidade": "ml"
+  },
+  {
+    "nome_medicacao": "Vacina contra Febre Amarela",
+    "dosagem": "0.5 ml",
+    "unidade": "ml"
+  },
+  {
+    "nome_medicacao": "Cálcio Polivitamínico",
+    "dosagem": "600 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Glucosamina + Condroitina",
+    "dosagem": "1.5 g + 1.2 g",
+    "unidade": "g"
+  },
+  {
+    "nome_medicacao": "Óleo de Peixe (Ômega 3)",
+    "dosagem": "1000 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Probiótico",
+    "dosagem": "5 Bilhões UFC",
+    "unidade": "UFC"
+  },
+
+  {
+    "nome_medicacao": "Dorzolamida + Timolol Colírio",
+    "dosagem": "20 mg/ml + 5 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Bimatoprosta Colírio",
+    "dosagem": "0.3 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Latanoprosta Colírio",
+    "dosagem": "50 mcg/ml",
+    "unidade": "mcg/ml"
+  },
+  {
+    "nome_medicacao": "Ciclosporina Colírio",
+    "dosagem": "0.5 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Diclofenaco Colírio",
+    "dosagem": "1 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Cetoprofeno",
+    "dosagem": "100 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Cetoprofeno Gotas",
+    "dosagem": "20 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Naproxeno",
+    "dosagem": "500 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Aceclofenaco",
+    "dosagem": "100 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Etodolaco",
+    "dosagem": "400 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Dexketoprofeno",
+    "dosagem": "25 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Rifaximina",
+    "dosagem": "550 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Fidaxomicina",
+    "dosagem": "200 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Meropenem",
+    "dosagem": "1 g",
+    "unidade": "g"
+  },
+  {
+    "nome_medicacao": "Imipenem + Cilastatina",
+    "dosagem": "500 mg + 500 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Tigeciclina",
+    "dosagem": "50 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Linezolida",
+    "dosagem": "600 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Moxifloxacino",
+    "dosagem": "400 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Claritromicina",
+    "dosagem": "500 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Telitromicina",
+    "dosagem": "400 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Eritromicina",
+    "dosagem": "500 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Espamicina",
+    "dosagem": "500 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Rifampicina",
+    "dosagem": "300 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Isoniazida",
+    "dosagem": "100 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Pirazinamida",
+    "dosagem": "500 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Etambutol",
+    "dosagem": "400 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Dapsona",
+    "dosagem": "100 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Clofazimina",
+    "dosagem": "100 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Podofilina",
+    "dosagem": "250 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Ácido Salicílico",
+    "dosagem": "200 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Ureia Creme",
+    "dosagem": "100 mg/g",
+    "unidade": "mg/g"
+  },
+  {
+    "nome_medicacao": "Tacrolimo Pomada",
+    "dosagem": "0.3 mg/g",
+    "unidade": "mg/g"
+  },
+  {
+    "nome_medicacao": "Pimecrolimo Creme",
+    "dosagem": "10 mg/g",
+    "unidade": "mg/g"
+  },
+  {
+    "nome_medicacao": "Calcipotriol",
+    "dosagem": "50 mcg/g",
+    "unidade": "mcg/g"
+  },
+  {
+    "nome_medicacao": "Minoxidil",
+    "dosagem": "50 mg/ml",
+    "unidade": "mg/ml"
+  },
+  {
+    "nome_medicacao": "Eflornitina",
+    "dosagem": "115 mg/g",
+    "unidade": "mg/g"
+  },
+  {
+    "nome_medicacao": "Tretinoína Creme",
+    "dosagem": "0.25 mg/g",
+    "unidade": "mg/g"
+  },
+  {
+    "nome_medicacao": "Isotretinoína Gel",
+    "dosagem": "0.5 mg/g",
+    "unidade": "mg/g"
+  },
+  {
+    "nome_medicacao": "Metilfenidato de Liberação Prolongada",
+    "dosagem": "18 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Zolpidem Sublingual",
+    "dosagem": "5 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Eszopiclona",
+    "dosagem": "3 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Ramelteona",
+    "dosagem": "8 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Levonorgestrel",
+    "dosagem": "1.5 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Ulipristal",
+    "dosagem": "30 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Desogestrel",
+    "dosagem": "75 mcg",
+    "unidade": "mcg"
+  },
+  {
+    "nome_medicacao": "Dispositivo Intrauterino de Cobre",
+    "dosagem": "1 unidade",
+    "unidade": "unidade"
+  },
+  {
+    "nome_medicacao": "Dispositivo Intrauterino Hormonal",
+    "dosagem": "52 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Implante de Etonogestrel",
+    "dosagem": "68 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Anel Vaginal (Etonogestrel + Etinilestradiol)",
+    "dosagem": "0.120 mg/dia + 0.015 mg/dia",
+    "unidade": "mg/dia"
+  },
+  {
+    "nome_medicacao": "Adesivo Transdérmico (Norelgestromina + Etinilestradiol)",
+    "dosagem": "6 mg + 0.6 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Cabergolina",
+    "dosagem": "0.5 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Bromocriptina",
+    "dosagem": "2.5 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Clomifeno",
+    "dosagem": "50 mg",
+    "unidade": "mg"
+  },
+  {
+    "nome_medicacao": "Gonadotrofina Coriônica Humana (hCG)",
+    "dosagem": "5000 UI",
+    "unidade": "UI"
+  }
+];
+            applyMedicationsToMemory(medicamentos);
+            return true;
+        };
+
         const medicineCatalog = [
             'Paracetamol','Ibuprofeno','Dipirona','Amoxicilina','Azitromicina','Cefalexina','Ciprofloxacino','Levofloxacino','Claritromicina','Metronidazol',
             'Cefoxitina','Ceftriaxona','Cefuroxima','Doxiciclina','Tetraciclina','Clindamicina','Vancomicina','Linezolida','Nitrofurantoína','Sulfametoxazol/Trimetoprim',
@@ -1452,6 +3706,9 @@
         };
 
         async function openMedicineModal() {
+            // Carregar medicamentos do JSON embutido
+            loadMedicamentosFromJSON();
+            
             // Tentativa automática de carregar catálogo grande da pasta medicacoes
             // Nota: quando hospedado em GitHub Pages o site pode estar em um subdiretório
             // (ex: /<user>/<repo>/). Construímos a URL base de forma robusta e permitimos
@@ -1641,15 +3898,17 @@
                 return;
             }
 
-            // tentar achar metadados do medicamento para preencher automaticamente
+            // tentar achar metadados do medicamento para preencher automaticamente se não preenchido
             const med = medicines.find(m => m.name.toLowerCase() === name.toLowerCase());
-            if (med) {
+            if (med && !dosage) {
                 const suggested = calculateDose(med);
                 if (suggested) {
-                    if (!dosage) dosage = suggested.doseText || '';
+                    dosage = suggested.doseText || med.dosagem || '';
                     if (!quantity) quantity = suggested.quantityText || '';
                     if (!posology) posology = suggested.posology || '';
                     showDosageNote(suggested.note);
+                } else {
+                    dosage = med.dosagem || '';
                 }
             }
 
@@ -1695,9 +3954,10 @@
                 // tentar achar med no banco para calcular dosagem
                 const med = medicines.find(x => x.name.toLowerCase() === name.toLowerCase());
                 if (med) {
+                    document.getElementById('medicineDosage').value = med.dosagem || '';
                     const suggested = calculateDose(med);
                     if (suggested) {
-                        document.getElementById('medicineDosage').value = suggested.doseText || '';
+                        // Campo dosagem removido, mas manter quantity e posology
                         document.getElementById('medicineQuantity').value = suggested.quantityText || '';
                         document.getElementById('medicinePosology').value = suggested.posology || '';
                         showDosageNote(suggested.note);
@@ -1827,22 +4087,43 @@
             }
             // normalizar e substituir arrays em memória
             const normalized = list.map(item => {
+                // Extrair valor numérico da dosagem
+                let standardDoseMg = null;
+                if (item.dosagem) {
+                    const match = item.dosagem.match(/(\d+(\.\d+)?)/);
+                    if (match) {
+                        standardDoseMg = parseFloat(match[1]);
+                    }
+                }
+                
+                // Definir unitMg baseado na unidade
+                let unitMg = null;
+                if (item.unidade === 'mg' && standardDoseMg) {
+                    unitMg = standardDoseMg; // Assumir que a dosagem é por unidade
+                }
+                
                 return {
-                    id: item.id || (item.name ? item.name.toLowerCase().replace(/\s+/g,'_') : Math.random().toString(36).slice(2,8)),
-                    name: item.name || '',
+                    id: item.id || (item.nome_medicacao ? item.nome_medicacao.toLowerCase().replace(/\s+/g,'_') : Math.random().toString(36).slice(2,8)),
+                    name: item.nome_medicacao || item.name || '',
                     type: item.type || item.category || '',
                     adultDoseMgKg: item.adultDoseMgKg || item.adultdosemgkg || null,
                     maxPerDoseMg: item.maxPerDoseMg || item.maxperdosemg || null,
                     maxPerDayMg: item.maxPerDayMg || item.maxperdaymg || null,
-                    standardDoseMg: item.standardDoseMg || item.standarddosemg || null,
-                    unitMg: item.unitMg || item.unitmg || null,
-                    defaultDurationDays: item.defaultDurationDays || item.defaultdurationdays || null
+                    standardDoseMg: item.standardDoseMg || item.standarddosemg || standardDoseMg,
+                    unitMg: item.unitMg || item.unitmg || unitMg,
+                    defaultDurationDays: item.defaultDurationDays || item.defaultdurationdays || null,
+                    dosagem: item.dosagem || '',
+                    unidade: item.unidade || ''
                 };
             });
 
-            // substituir arrays globais
+            // substituir arrays globais e variáveis locais usadas pelo código
             window.medicines = normalized;
+            // também atualizar a variável 'medicines' (const no topo) para que buscas e seleções
+            // usem imediatamente os dados recém-carregados
+            try { medicines.length = 0; medicines.push(...normalized); } catch(e) { window.medicines = normalized; }
             window.medicineCatalog = normalized.map(m => m.name).filter(Boolean);
+            try { medicineCatalog.length = 0; medicineCatalog.push(...window.medicineCatalog); } catch(e) { window.medicineCatalog = window.medicineCatalog; }
             // atualizar modal se estiver aberto
             if (document.getElementById('medicineModal').classList.contains('active')) {
                 populateMedicineModal();
@@ -1924,12 +4205,19 @@
                     }
                     return false;
                 })(toTry);
+
                 if (ok) {
                     populateMedicineModal();
                     alert('Lista de medicamentos carregada com sucesso.');
                 } else {
+                    // Tentativa automática falhou — pode ser por estar abrindo via file://
+                    console.debug('Não foi possível carregar automaticamente o catálogo grande: nenhum dos caminhos funcionou');
+                    alert('Não foi possível carregar a lista externa automaticamente. Se estiver abrindo o arquivo localmente, selecione o arquivo medicacoes/medicamentos_full.json no seletor que será aberto.');
+                    const upload = document.getElementById('uploadMeds');
+                    if (upload) {
+                        try { upload.click(); } catch(e) { console.debug('Falha ao tentar abrir seletor de arquivo automaticamente', e); }
+                    }
                     populateMedicineModal();
-                    alert('Não foi possível carregar a lista externa. Verifique a URL em Configurações ou o Console do navegador para detalhes.');
                 }
             } catch(e) {
                 console.debug('Erro em forceReloadMedicaments:', e.message || e);
@@ -2040,7 +4328,7 @@
     <div class="modal" id="medicineModal" aria-hidden="true">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Lista de Medicamentos - Checklist</h3>
+                <h3>Lista de Medicamentos</h3>
                 <button class="close-modal" onclick="closeMedicineModal()">✕</button>
             </div>
             <div style="margin-bottom:12px; display:flex; gap:8px; align-items:center;">
