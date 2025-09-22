@@ -1,0 +1,1958 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedPro - Sistema Médico Completo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --dark: #1f2937;
+            --light: #f3f4f6;
+            --border: #e5e7eb;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: var(--light);
+            border-bottom: 2px solid var(--border);
+            overflow-x: auto;
+        }
+
+        .nav-tab {
+            padding: 20px 30px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            color: var(--dark);
+            transition: all 0.3s;
+            position: relative;
+            white-space: nowrap;
+        }
+
+        .nav-tab:hover {
+            background: white;
+        }
+
+        .nav-tab.active {
+            background: white;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .nav-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary);
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            color: var(--dark);
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        input, select, textarea {
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-success {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .quick-templates {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .template-card {
+            padding: 20px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .template-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .template-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .medicines-list, .exams-list {
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .medicine-item, .exam-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: var(--light);
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .medicine-info, .exam-info {
+            flex: 1;
+        }
+
+        .preview {
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 30px;
+            background: white;
+            margin-top: 30px;
+            position: relative;
+            min-height: 600px;
+        }
+
+        .preview-header {
+            text-align: center;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .clinic-logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 32px;
+        }
+
+        .doctor-info {
+            margin-bottom: 10px;
+        }
+
+        .patient-info {
+            background: var(--light);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .prescription-content {
+            min-height: 300px;
+            margin-bottom: 30px;
+        }
+
+        .signature-section {
+            margin-top: 50px;
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid var(--dark);
+            width: 300px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding-left: 40px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+        }
+
+        .autocomplete-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .autocomplete-suggestions.active {
+            display: block;
+        }
+
+        .suggestion-item {
+            padding: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .suggestion-item:hover {
+            background: var(--light);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-modal {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: none;
+            background: var(--light);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-modal:hover {
+            background: var(--border);
+        }
+
+        @media print {
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; }
+            .header, .nav-tabs, .actions, .btn { display: none; }
+            .preview { border: none; }
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .quick-templates {
+                grid-template-columns: 1fr;
+            }
+            
+            .actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">⚕️</div>
+                <div>
+                    <h1>MedPro System</h1>
+                    <p>Sistema Médico Completo</p>
+                </div>
+            </div>
+            <div class="stats-grid" style="display: flex; gap: 20px;">
+                <div style="text-align: center;">
+                    <div style="font-size: 24px; font-weight: bold;">152</div>
+                    <div style="font-size: 12px;">Receitas Hoje</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 24px; font-weight: bold;">89</div>
+                    <div style="font-size: 12px;">Exames Hoje</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchTab('prescription')">📝 Receituário</button>
+            <button class="nav-tab" onclick="switchTab('exams')">🔬 Solicitação de Exames</button>
+            <button class="nav-tab" onclick="switchTab('certificate')">📋 Atestado Médico</button>
+            <button class="nav-tab" onclick="switchTab('history')">📊 Histórico</button>
+            <button class="nav-tab" onclick="switchTab('settings')">⚙️ Configurações</button>
+        </div>
+
+        <div class="content">
+            <!-- Receituário Tab -->
+            <div id="prescription" class="tab-content active">
+                <h2 style="margin-bottom: 20px;">Nova Receita Médica</h2>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="patientName">Nome do Paciente*</label>
+                        <input type="text" id="patientName" placeholder="Digite o nome completo">
+                    </div>
+                    <div class="form-group">
+                        <label for="patientCPF">CPF</label>
+                        <input type="text" id="patientCPF" placeholder="000.000.000-00">
+                    </div>
+                    <div class="form-group">
+                        <label for="patientBirth">Data de Nascimento</label>
+                        <input type="date" id="patientBirth" onchange="updateAgeFromBirth()">
+                    </div>
+                    <div class="form-group">
+                        <label for="patientAge">Idade</label>
+                        <input type="number" id="patientAge" placeholder="Idade (anos)" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="patientSex">Sexo</label>
+                        <select id="patientSex">
+                            <option value="">--</option>
+                            <option value="masculino">Masculino</option>
+                            <option value="feminino">Feminino</option>
+                            <option value="outro">Outro/Não informado</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="patientWeight">Peso (kg)</label>
+                        <input type="number" id="patientWeight" placeholder="Peso em kg" step="0.1" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="patientPhone">Telefone</label>
+                        <input type="tel" id="patientPhone" placeholder="(00) 00000-0000">
+                    </div>
+                </div>
+
+                <h3 style="margin-bottom: 15px;">Templates Rápidos</h3>
+                <div class="quick-templates">
+                    <button type="button" class="template-card" onclick="loadTemplate('hipertensao')">
+                        <div class="template-icon">❤️</div>
+                        <div>Hipertensão</div>
+                    </button>
+                    <button type="button" class="template-card" onclick="loadTemplate('diabetes')">
+                        <div class="template-icon">💉</div>
+                        <div>Diabetes</div>
+                    </button>
+                    <button type="button" class="template-card" onclick="loadTemplate('gripe')">
+                        <div class="template-icon">🤧</div>
+                        <div>Gripe/Resfriado</div>
+                    </button>
+                    <button type="button" class="template-card" onclick="loadTemplate('dor')">
+                        <div class="template-icon">💊</div>
+                        <div>Analgésicos</div>
+                    </button>
+                    <button type="button" class="template-card" onclick="loadTemplate('antibiotico')">
+                        <div class="template-icon">🦠</div>
+                        <div>Antibióticos</div>
+                    </button>
+                    <button type="button" class="template-card" onclick="loadTemplate('ansiedade')">
+                        <div class="template-icon">🧠</div>
+                        <div>Ansiedade</div>
+                    </button>
+                </div>
+
+                <h3 style="margin-bottom: 15px;">Adicionar Medicamento</h3>
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="medicineSearch" placeholder="Digite o nome do medicamento..." onkeyup="searchMedicine(this.value)">
+                    <div class="autocomplete-suggestions" id="medicineSuggestions"></div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                            <label for="medicineName">Medicamento</label>
+                            <div style="display:flex; gap:8px; align-items:center;">
+                                <input type="text" id="medicineName" placeholder="Nome do medicamento">
+                                <button type="button" class="btn btn-primary" onclick="openMedicineModal()" style="padding:8px 12px; font-size:14px;">📋 Lista</button>
+                            </div>
+                        </div>
+                    <div class="form-group">
+                        <label for="medicineDosage">Dosagem</label>
+                        <input type="text" id="medicineDosage" placeholder="Ex: 500mg">
+                    </div>
+                    <div class="form-group">
+                        <label for="medicineQuantity">Quantidade</label>
+                        <input type="text" id="medicineQuantity" placeholder="Ex: 1 caixa">
+                    </div>
+                    <div class="form-group">
+                        <label for="medicinePosology">Posologia</label>
+                        <input type="text" id="medicinePosology" placeholder="Ex: 1 comprimido de 8/8h">
+                    </div>
+                </div>
+                
+                <button class="btn btn-success" onclick="addMedicine()">+ Adicionar Medicamento</button>
+
+                <h3 style="margin: 20px 0 15px;">Medicamentos Adicionados</h3>
+                <div class="medicines-list" id="medicinesList">
+                    <p style="color: #9ca3af; text-align: center;">Nenhum medicamento adicionado</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="prescriptionObs">Observações</label>
+                    <textarea id="prescriptionObs" placeholder="Observações adicionais..."></textarea>
+                </div>
+
+                <div class="actions">
+                    <button class="btn btn-primary" onclick="generatePrescription()">📄 Gerar Receita</button>
+                    <button class="btn btn-success" onclick="printDocument()">🖨️ Imprimir</button>
+                    <button class="btn btn-danger" onclick="clearPrescription()">🗑️ Limpar</button>
+                </div>
+            </div>
+
+            <!-- Exames Tab -->
+            <div id="exams" class="tab-content">
+                <h2 style="margin-bottom: 20px;">Solicitação de Exames</h2>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="examPatientName">Nome do Paciente*</label>
+                        <input type="text" id="examPatientName" placeholder="Digite o nome completo">
+                    </div>
+                    <div class="form-group">
+                        <label for="examPatientCPF">CPF</label>
+                        <input type="text" id="examPatientCPF" placeholder="000.000.000-00">
+                    </div>
+                    <div class="form-group">
+                        <label for="examInsurance">Convênio</label>
+                        <select id="examInsurance">
+                            <option value="">Particular</option>
+                            <option value="SUS">SUS</option>
+                            <option value="Unimed">Unimed</option>
+                            <option value="Bradesco">Bradesco Saúde</option>
+                            <option value="Amil">Amil</option>
+                            <option value="SulAmerica">SulAmérica</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="examInsuranceNumber">Matrícula/Carteirinha</label>
+                        <input type="text" id="examInsuranceNumber" placeholder="Número do convênio">
+                    </div>
+                </div>
+
+                <h3 style="margin-bottom: 15px;">Exames Rápidos</h3>
+                <div class="quick-templates">
+                    <button type="button" class="template-card" onclick="loadExamTemplate('rotina')">
+                        <div class="template-icon">🩸</div>
+                        <div>Exames de Rotina</div>
+                    </button>
+                    <button type="button" class="template-card" onclick="loadExamTemplate('cardiaco')">
+                        <div class="template-icon">❤️</div>
+                        <div>Check-up Cardíaco</div>
+                    </button>
+                    <button type="button" class="template-card" onclick="loadExamTemplate('prenatal')">
+                        <div class="template-icon">🤰</div>
+                        <div>Pré-natal</div>
+                    </button>
+                    <button type="button" class="template-card" onclick="loadExamTemplate('hormonal')">
+                        <div class="template-icon">⚗️</div>
+                        <div>Perfil Hormonal</div>
+                    </button>
+                </div>
+
+                <h3 style="margin-bottom: 15px;">Adicionar Exame</h3>
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="examSearch" placeholder="Digite o nome do exame..." onkeyup="searchExam(this.value)">
+                    <div class="autocomplete-suggestions" id="examSuggestions"></div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group" style="grid-column: span 2;">
+                            <label for="examName">Exame</label>
+                            <div style="display:flex; gap:8px; align-items:center;">
+                                <input type="text" id="examName" placeholder="Nome do exame">
+                                <button type="button" class="btn btn-primary" onclick="openExamModal()" style="padding:8px 12px; font-size:14px;">📋 Lista</button>
+                            </div>
+                        </div>
+                    <div class="form-group">
+                        <label for="examUrgency">Urgência</label>
+                        <select id="examUrgency">
+                            <option value="normal">Normal</option>
+                            <option value="urgente">Urgente</option>
+                            <option value="emergencia">Emergência</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" onclick="addExam()">+ Adicionar Exame</button>
+
+                <h3 style="margin: 20px 0 15px;">Exames Solicitados</h3>
+                <div class="exams-list" id="examsList">
+                    <p style="color: #9ca3af; text-align: center;">Nenhum exame adicionado</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="examDiagnosis">Hipótese Diagnóstica</label>
+                    <textarea id="examDiagnosis" placeholder="CID ou descrição..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="examObs">Observações Clínicas</label>
+                    <textarea id="examObs" placeholder="Informações clínicas relevantes..."></textarea>
+                </div>
+
+                <div class="actions">
+                    <button class="btn btn-primary" onclick="generateExamRequest()">📄 Gerar Solicitação</button>
+                    <button class="btn btn-success" onclick="printDocument()">🖨️ Imprimir</button>
+                    <button class="btn btn-danger" onclick="clearExams()">🗑️ Limpar</button>
+                </div>
+            </div>
+
+            <!-- Atestado Tab -->
+            <div id="certificate" class="tab-content">
+                <h2 style="margin-bottom: 20px;">Atestado Médico</h2>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="certPatientName">Nome do Paciente*</label>
+                        <input type="text" id="certPatientName" placeholder="Digite o nome completo">
+                    </div>
+                    <div class="form-group">
+                        <label for="certPatientDoc">RG/CPF</label>
+                        <input type="text" id="certPatientDoc" placeholder="Documento">
+                    </div>
+                    <div class="form-group">
+                        <label for="certDays">Dias de Afastamento</label>
+                        <input type="number" id="certDays" placeholder="Número de dias" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="certStartDate">A partir de</label>
+                        <input type="date" id="certStartDate">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="certCID">CID (opcional)</label>
+                    <input type="text" id="certCID" placeholder="Código CID-10">
+                </div>
+
+                <div class="form-group">
+                    <label for="certReason">Motivo do Atestado</label>
+                    <textarea id="certReason" placeholder="Descreva o motivo do afastamento..."></textarea>
+                </div>
+
+                <div class="actions">
+                    <button class="btn btn-primary" onclick="generateCertificate()">📄 Gerar Atestado</button>
+                    <button class="btn btn-success" onclick="printDocument()">🖨️ Imprimir</button>
+                    <button class="btn btn-danger" onclick="clearCertificate()">🗑️ Limpar</button>
+                </div>
+            </div>
+
+            <!-- Histórico Tab -->
+            <div id="history" class="tab-content">
+                <h2 style="margin-bottom: 20px;">Histórico de Documentos</h2>
+                
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" placeholder="Buscar por paciente, data ou tipo...">
+                </div>
+
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: var(--light);">
+                                <th style="padding: 15px; text-align: left;">Data</th>
+                                <th style="padding: 15px; text-align: left;">Paciente</th>
+                                <th style="padding: 15px; text-align: left;">Tipo</th>
+                                <th style="padding: 15px; text-align: left;">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid var(--border);">
+                                <td style="padding: 15px;">22/09/2025</td>
+                                <td style="padding: 15px;">Maria Silva</td>
+                                <td style="padding: 15px;">Receita</td>
+                                <td style="padding: 15px;">
+                                    <button class="btn btn-primary" style="padding: 8px 16px; font-size: 14px;">Visualizar</button>
+                                </td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border);">
+                                <td style="padding: 15px;">22/09/2025</td>
+                                <td style="padding: 15px;">João Santos</td>
+                                <td style="padding: 15px;">Exames</td>
+                                <td style="padding: 15px;">
+                                    <button class="btn btn-primary" style="padding: 8px 16px; font-size: 14px;">Visualizar</button>
+                                </td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border);">
+                                <td style="padding: 15px;">21/09/2025</td>
+                                <td style="padding: 15px;">Ana Costa</td>
+                                <td style="padding: 15px;">Atestado</td>
+                                <td style="padding: 15px;">
+                                    <button class="btn btn-primary" style="padding: 8px 16px; font-size: 14px;">Visualizar</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Configurações Tab -->
+            <div id="settings" class="tab-content">
+                <h2 style="margin-bottom: 20px;">Configurações do Sistema</h2>
+                
+                <h3 style="margin-bottom: 15px;">Dados do Médico</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="doctorName">Nome Completo</label>
+                        <input type="text" id="doctorName" value="Dr. José Silva" placeholder="Nome do médico">
+                    </div>
+                    <div class="form-group">
+                        <label for="doctorCRM">CRM</label>
+                        <input type="text" id="doctorCRM" value="CRM/RJ 123456" placeholder="CRM/UF 000000">
+                    </div>
+                    <div class="form-group">
+                        <label for="doctorSpecialty">Especialidade</label>
+                        <input type="text" id="doctorSpecialty" value="Clínica Geral" placeholder="Especialidade">
+                    </div>
+                    <div class="form-group">
+                        <label for="doctorPhone">Telefone</label>
+                        <input type="tel" id="doctorPhone" value="(21) 98765-4321" placeholder="Telefone">
+                    </div>
+                </div>
+
+                <h3 style="margin: 30px 0 15px;">Dados da Clínica</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="clinicName">Nome da Clínica</label>
+                        <input type="text" id="clinicName" value="Clínica Saúde Total" placeholder="Nome da clínica">
+                    </div>
+                    <div class="form-group">
+                        <label for="clinicCNPJ">CNPJ</label>
+                        <input type="text" id="clinicCNPJ" placeholder="00.000.000/0000-00">
+                    </div>
+                </div>
+                <h3 style="margin: 30px 0 15px;">Gerenciar Lista de Medicamentos</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="externalMedUrl">Carregar lista externa (fetch)</label>
+                        <input type="text" id="externalMedUrl" placeholder="medicacoes/medicamentos.json" value="medicacoes/medicamentos.json">
+                        <small style="color:#6b7280; margin-top:6px; display:block;">Tente carregar este arquivo (funciona se servido por HTTP/S). Se estiver abrindo via file:// use o upload abaixo.</small>
+                        <div style="margin-top:8px; display:flex; gap:8px;">
+                            <button class="btn btn-primary" onclick="loadExternalMedications()">🔄 Carregar via URL</button>
+                            <button class="btn" onclick="resetToBuiltin()">⟲ Usar interno</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="uploadMeds">Importar arquivo (JSON ou CSV)</label>
+                        <input type="file" id="uploadMeds" accept=".json,.csv" onchange="handleMedFileUpload(this.files)">
+                        <small style="color:#6b7280; margin-top:6px; display:block;">Selecione um JSON com formato de array de objetos ou CSV (name,id,unitMg,...).</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="generateCount">Gerar Catálogo Grande</label>
+                        <div style="display:flex; gap:8px; align-items:center;">
+                            <input type="number" id="generateCount" value="3000" min="100" max="10000" style="width:120px; padding:8px;"> 
+                            <button class="btn btn-primary" onclick="generateAndDownloadCatalog()">⬇️ Gerar e Baixar Catálogo</button>
+                        </div>
+                        <small style="color:#6b7280; display:block; margin-top:6px;">Gera um JSON com contagem especificada contendo entradas padronizadas (você pode editar depois).</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Navegação entre abas
+        function switchTab(tabName) {
+            // Esconder todas as abas
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Remover classe active dos botões
+            const navTabs = document.querySelectorAll('.nav-tab');
+            navTabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Mostrar aba selecionada
+            document.getElementById(tabName).classList.add('active');
+            
+            // Adicionar classe active ao botão clicado
+            event.target.classList.add('active');
+        }
+
+        // Templates de medicamentos
+        const medicineTemplates = {
+            hipertensao: [
+                { name: 'Losartana Potássica', dosage: '50mg', quantity: '30 comprimidos', posology: '1 comprimido ao dia' },
+                { name: 'Amlodipina', dosage: '5mg', quantity: '30 comprimidos', posology: '1 comprimido ao dia' }
+            ],
+            diabetes: [
+                { name: 'Metformina', dosage: '500mg', quantity: '60 comprimidos', posology: '1 comprimido de 12/12h' },
+                { name: 'Gliclazida', dosage: '30mg', quantity: '30 comprimidos', posology: '1 comprimido ao dia' }
+            ],
+            gripe: [
+                { name: 'Paracetamol', dosage: '500mg', quantity: '20 comprimidos', posology: '1 comprimido de 6/6h se dor/febre' },
+                { name: 'Dipirona', dosage: '500mg', quantity: '10 comprimidos', posology: '1 comprimido de 6/6h se dor' }
+            ],
+            dor: [
+                { name: 'Ibuprofeno', dosage: '400mg', quantity: '20 comprimidos', posology: '1 comprimido de 8/8h se dor' },
+                { name: 'Paracetamol', dosage: '750mg', quantity: '20 comprimidos', posology: '1 comprimido de 6/6h se dor' }
+            ],
+            antibiotico: [
+                { name: 'Amoxicilina', dosage: '500mg', quantity: '21 cápsulas', posology: '1 cápsula de 8/8h por 7 dias' }
+            ],
+            ansiedade: [
+                { name: 'Sertralina', dosage: '50mg', quantity: '30 comprimidos', posology: '1 comprimido ao dia' },
+                { name: 'Clonazepam', dosage: '0.5mg', quantity: '30 comprimidos', posology: '1 comprimido ao dia' }
+            ]
+        };
+
+        // Templates de exames
+        const examTemplates = {
+            rotina: [
+                'Hemograma Completo',
+                'Glicemia de Jejum',
+                'Colesterol Total e Frações',
+                'Triglicerídeos',
+                'Creatinina',
+                'TSH',
+                'Urina Tipo I',
+                'Parasitológico de Fezes'
+            ],
+            cardiaco: [
+                'Eletrocardiograma',
+                'Ecocardiograma',
+                'Colesterol Total e Frações',
+                'Triglicerídeos',
+                'Glicemia de Jejum',
+                'Hemoglobina Glicada'
+            ],
+            prenatal: [
+                'Hemograma',
+                'Glicemia de Jejum',
+                'Toxoplasmose IgM e IgG',
+                'Rubeola IgM e IgG',
+                'Citomegalovirus IgM e IgG',
+                'Sífilis (VDRL)',
+                'HIV',
+                'Ultrassonografia Obstétrica'
+            ],
+            hormonal: [
+                'TSH',
+                'T4 Livre',
+                'Cortisol',
+                'Testosterona Total',
+                'Prolactina',
+                'FSH',
+                'LH'
+            ]
+        };
+
+        // Carregar template de medicamento
+        function loadTemplate(templateName) {
+            const template = medicineTemplates[templateName];
+            if (template) {
+                template.forEach(medicine => {
+                    document.getElementById('medicineName').value = medicine.name;
+                    document.getElementById('medicineDosage').value = medicine.dosage;
+                    document.getElementById('medicineQuantity').value = medicine.quantity;
+                    document.getElementById('medicinePosology').value = medicine.posology;
+                    addMedicine();
+                });
+            }
+        }
+
+        // Carregar template de exame
+        function loadExamTemplate(templateName) {
+            const template = examTemplates[templateName];
+            if (template) {
+                template.forEach(exam => {
+                    document.getElementById('examName').value = exam;
+                    addExam();
+                });
+            }
+        }
+
+        // A função addMedicine é implementada abaixo (versão única com preenchimento automático)
+
+        // Adicionar exame
+        function addExam() {
+            const name = document.getElementById('examName').value.trim();
+            const urgency = document.getElementById('examUrgency').value;
+
+            if (!name) {
+                alert('Por favor, digite o nome do exame.');
+                return;
+            }
+
+            const examsList = document.getElementById('examsList');
+            
+            // Remover mensagem de lista vazia
+            if (examsList.querySelector('p')) {
+                examsList.innerHTML = '';
+            }
+
+            let urgencyText = '🟢 Normal';
+            if (urgency === 'urgente') {
+                urgencyText = '🔴 Urgente';
+            } else if (urgency === 'emergencia') {
+                urgencyText = '🔴🔴 Emergência';
+            }
+
+            const examItem = document.createElement('div');
+            examItem.className = 'exam-item';
+            examItem.innerHTML = `
+                <div class="exam-info">
+                    <strong>${name}</strong><br>
+                    <small>${urgencyText}</small>
+                </div>
+                <button class="btn btn-danger" onclick="removeItem(this)" style="padding: 8px 16px; font-size: 14px;">Remover</button>
+            `;
+
+            examsList.appendChild(examItem);
+
+            // Limpar campos
+            document.getElementById('examName').value = '';
+            document.getElementById('examUrgency').value = 'normal';
+        }
+
+        // Remover item
+        function removeItem(button) {
+            button.closest('.medicine-item, .exam-item').remove();
+            
+            // Verificar se lista ficou vazia
+            const list = button.closest('.medicines-list, .exams-list');
+            if (list.children.length === 0) {
+                list.innerHTML = '<p style="color: #9ca3af; text-align: center;">Nenhum item adicionado</p>';
+            }
+        }
+
+        // Gerar receita
+        function generatePrescription() {
+            const patientName = document.getElementById('patientName').value.trim();
+            if (!patientName) {
+                alert('Por favor, digite o nome do paciente.');
+                return;
+            }
+
+            const medicines = document.querySelectorAll('#medicinesList .medicine-item');
+            if (medicines.length === 0) {
+                alert('Por favor, adicione pelo menos um medicamento.');
+                return;
+            }
+
+            const preview = document.querySelector('.preview');
+            const doctorName = document.getElementById('doctorName').value || 'Dr. José Silva';
+            const doctorCRM = document.getElementById('doctorCRM').value || 'CRM/RJ 123456';
+            const clinicName = document.getElementById('clinicName').value || 'Clínica Saúde Total';
+
+            let medicinesHTML = '';
+            medicines.forEach(medicine => {
+                medicinesHTML += `<div style="margin-bottom: 15px; padding: 10px; background: var(--light); border-radius: 8px;">
+                    ${medicine.querySelector('.medicine-info').innerHTML}
+                </div>`;
+            });
+
+            const obs = document.getElementById('prescriptionObs').value;
+
+            preview.innerHTML = `
+                <div class="preview-header">
+                    <div class="clinic-logo">🏥</div>
+                    <h2>${clinicName}</h2>
+                    <p>Receituário Médico</p>
+                </div>
+
+                <div class="patient-info">
+                    <h3>Dados do Paciente</h3>
+                    <p><strong>Nome:</strong> ${patientName}</p>
+                    <p><strong>Data:</strong> ${new Date().toLocaleDateString('pt-BR')}</p>
+                </div>
+
+                <div class="prescription-content">
+                    <h3>Medicamentos Prescritos</h3>
+                    ${medicinesHTML}
+                    ${obs ? `<div style="margin-top: 20px;"><strong>Observações:</strong><br>${obs}</div>` : ''}
+                </div>
+
+                <div class="doctor-info">
+                    <p><strong>Médico:</strong> ${doctorName}</p>
+                    <p><strong>CRM:</strong> ${doctorCRM}</p>
+                </div>
+
+                <div class="signature-section">
+                    <p>_______________________________</p>
+                    <p>Assinatura do Médico</p>
+                </div>
+            `;
+
+            preview.style.display = 'block';
+        }
+
+        // Gerar solicitação de exames
+        function generateExamRequest() {
+            const patientName = document.getElementById('examPatientName').value.trim();
+            if (!patientName) {
+                alert('Por favor, digite o nome do paciente.');
+                return;
+            }
+
+            const exams = document.querySelectorAll('#examsList .exam-item');
+            if (exams.length === 0) {
+                alert('Por favor, adicione pelo menos um exame.');
+                return;
+            }
+
+            const preview = document.querySelector('.preview');
+            const doctorName = document.getElementById('doctorName').value || 'Dr. José Silva';
+            const doctorCRM = document.getElementById('doctorCRM').value || 'CRM/RJ 123456';
+            const clinicName = document.getElementById('clinicName').value || 'Clínica Saúde Total';
+
+            let examsHTML = '';
+            exams.forEach(exam => {
+                examsHTML += `<div style="margin-bottom: 10px; padding: 10px; background: var(--light); border-radius: 8px;">
+                    ${exam.querySelector('.exam-info').innerHTML}
+                </div>`;
+            });
+
+            const diagnosis = document.getElementById('examDiagnosis').value;
+            const obs = document.getElementById('examObs').value;
+
+            preview.innerHTML = `
+                <div class="preview-header">
+                    <div class="clinic-logo">🏥</div>
+                    <h2>${clinicName}</h2>
+                    <p>Solicitação de Exames Laboratoriais</p>
+                </div>
+
+                <div class="patient-info">
+                    <h3>Dados do Paciente</h3>
+                    <p><strong>Nome:</strong> ${patientName}</p>
+                    <p><strong>Data:</strong> ${new Date().toLocaleDateString('pt-BR')}</p>
+                </div>
+
+                <div class="prescription-content">
+                    <h3>Exames Solicitados</h3>
+                    ${examsHTML}
+                    ${diagnosis ? `<div style="margin-top: 20px;"><strong>Hipótese Diagnóstica:</strong><br>${diagnosis}</div>` : ''}
+                    ${obs ? `<div style="margin-top: 20px;"><strong>Observações Clínicas:</strong><br>${obs}</div>` : ''}
+                </div>
+
+                <div class="doctor-info">
+                    <p><strong>Médico Solicitante:</strong> ${doctorName}</p>
+                    <p><strong>CRM:</strong> ${doctorCRM}</p>
+                </div>
+
+                <div class="signature-section">
+                    <p>_______________________________</p>
+                    <p>Assinatura do Médico</p>
+                </div>
+            `;
+
+            preview.style.display = 'block';
+        }
+
+        // Gerar atestado
+        function generateCertificate() {
+            const patientName = document.getElementById('certPatientName').value.trim();
+            const days = document.getElementById('certDays').value;
+            const startDate = document.getElementById('certStartDate').value;
+
+            if (!patientName || !days || !startDate) {
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
+
+            const preview = document.querySelector('.preview');
+            const doctorName = document.getElementById('doctorName').value || 'Dr. José Silva';
+            const doctorCRM = document.getElementById('doctorCRM').value || 'CRM/RJ 123456';
+            const clinicName = document.getElementById('clinicName').value || 'Clínica Saúde Total';
+
+            const endDate = new Date(startDate);
+            endDate.setDate(endDate.getDate() + parseInt(days) - 1);
+            const reason = document.getElementById('certReason').value;
+            const cid = document.getElementById('certCID').value;
+
+            preview.innerHTML = `
+                <div class="preview-header">
+                    <div class="clinic-logo">🏥</div>
+                    <h2>${clinicName}</h2>
+                    <p>Atestado Médico</p>
+                </div>
+
+                <div class="prescription-content">
+                    <p style="text-align: center; margin: 30px 0;">
+                        <strong>ATESTADO MÉDICO</strong>
+                    </p>
+
+                    <p>Atesto, para os devidos fins, que o(a) paciente <strong>${patientName}</strong> foi atendido(a) nesta clínica no dia ${new Date().toLocaleDateString('pt-BR')}, necessitando de afastamento de suas atividades laborais por <strong>${days} dias</strong>, no período de <strong>${new Date(startDate).toLocaleDateString('pt-BR')}</strong> a <strong>${endDate.toLocaleDateString('pt-BR')}</strong>.</p>
+
+                    ${reason ? `<p><strong>Motivo:</strong> ${reason}</p>` : ''}
+                    ${cid ? `<p><strong>CID:</strong> ${cid}</p>` : ''}
+
+                    <p style="margin-top: 50px;">Rio de Janeiro, ${new Date().toLocaleDateString('pt-BR')}</p>
+                </div>
+
+                <div class="doctor-info">
+                    <p><strong>Médico:</strong> ${doctorName}</p>
+                    <p><strong>CRM:</strong> ${doctorCRM}</p>
+                </div>
+
+                <div class="signature-section">
+                    <p>_______________________________</p>
+                    <p>Assinatura do Médico</p>
+                </div>
+            `;
+
+            preview.style.display = 'block';
+        }
+
+        // Imprimir documento
+        function printDocument() {
+            window.print();
+        }
+
+        // Limpar receita
+        function clearPrescription() {
+            document.getElementById('patientName').value = '';
+            document.getElementById('patientCPF').value = '';
+            document.getElementById('patientBirth').value = '';
+            document.getElementById('patientPhone').value = '';
+            document.getElementById('medicinesList').innerHTML = '<p style="color: #9ca3af; text-align: center;">Nenhum medicamento adicionado</p>';
+            document.getElementById('prescriptionObs').value = '';
+            document.querySelector('.preview').style.display = 'none';
+        }
+
+        // Limpar exames
+        function clearExams() {
+            document.getElementById('examPatientName').value = '';
+            document.getElementById('examPatientCPF').value = '';
+            document.getElementById('examInsurance').value = '';
+            document.getElementById('examInsuranceNumber').value = '';
+            document.getElementById('examsList').innerHTML = '<p style="color: #9ca3af; text-align: center;">Nenhum exame adicionado</p>';
+            document.getElementById('examDiagnosis').value = '';
+            document.getElementById('examObs').value = '';
+            document.querySelector('.preview').style.display = 'none';
+        }
+
+        // Limpar atestado
+        function clearCertificate() {
+            document.getElementById('certPatientName').value = '';
+            document.getElementById('certPatientDoc').value = '';
+            document.getElementById('certDays').value = '';
+            document.getElementById('certStartDate').value = '';
+            document.getElementById('certCID').value = '';
+            document.getElementById('certReason').value = '';
+            document.querySelector('.preview').style.display = 'none';
+        }
+
+        // Busca de medicamentos (simulada)
+        // Banco de medicamentos com regras de dosagem (simplificado e ilustrativo)
+        const medicines = [
+            // Os campos unitMg e defaultDurationDays são auxiliares para cálculo automático.
+            { id: 'paracetamol', name: 'Paracetamol', type: 'analgésico', adultDoseMgKg: 15, maxPerDoseMg: 1000, maxPerDayMg: 4000, unitMg: 500, defaultDurationDays: 3 },
+            { id: 'ibuprofeno', name: 'Ibuprofeno', type: 'anti-inflamatório', adultDoseMgKg: 10, maxPerDoseMg: 400, maxPerDayMg: 1200, unitMg: 400, defaultDurationDays: 3 },
+            { id: 'dipirona', name: 'Dipirona', type: 'analgésico', adultDoseMgKg: 10, maxPerDoseMg: 1000, maxPerDayMg: 4000, unitMg: 500, defaultDurationDays: 3 },
+            { id: 'amoxicilina', name: 'Amoxicilina', type: 'antibiótico', adultDoseMgKg: 25, maxPerDoseMg: 1000, maxPerDayMg: 3000, unitMg: 500, defaultDurationDays: 7 },
+            { id: 'azitromicina', name: 'Azitromicina', type: 'antibiótico', adultDoseMgKg: 10, maxPerDoseMg: 500, maxPerDayMg: 1500, unitMg: 500, defaultDurationDays: 3 },
+            { id: 'losartana', name: 'Losartana Potássica', type: 'antihipertensivo', standardDoseMg: 50, unitMg: 50, defaultDurationDays: 30 },
+            { id: 'amlodipina', name: 'Amlodipina', type: 'antihipertensivo', standardDoseMg: 5, unitMg: 5, defaultDurationDays: 30 },
+            { id: 'metformina', name: 'Metformina', type: 'antidiabético', standardDoseMg: 500, unitMg: 500, defaultDurationDays: 30 },
+            { id: 'gliclazida', name: 'Gliclazida', type: 'antidiabético', standardDoseMg: 30, unitMg: 30, defaultDurationDays: 30 },
+            { id: 'sertralina', name: 'Sertralina', type: 'psicotrópico', standardDoseMg: 50, unitMg: 50, defaultDurationDays: 30 },
+            { id: 'omeprazol', name: 'Omeprazol', type: 'inibidor de bomba', standardDoseMg: 20, unitMg: 20, defaultDurationDays: 14 },
+            { id: 'pantoprazol', name: 'Pantoprazol', type: 'inibidor de bomba', standardDoseMg: 40, unitMg: 40, defaultDurationDays: 14 }
+        ];
+
+        function searchMedicine(query) {
+            const suggestions = document.getElementById('medicineSuggestions');
+            if (query.length < 2) {
+                suggestions.classList.remove('active');
+                return;
+            }
+
+            const filtered = medicines.filter(med => med.name.toLowerCase().includes(query.toLowerCase()));
+
+            if (filtered.length > 0) {
+                suggestions.innerHTML = filtered.map(med => `<div class="suggestion-item" onclick="selectMedicine('${med.id}')">${med.name}</div>`).join('');
+                suggestions.classList.add('active');
+            } else {
+                suggestions.classList.remove('active');
+            }
+        }
+
+        function selectMedicine(id) {
+            const med = medicines.find(m => m.id === id);
+            if (!med) return;
+            document.getElementById('medicineName').value = med.name;
+            // calcular dosagem sugerida
+            const suggested = calculateDose(med);
+            if (suggested) {
+                document.getElementById('medicineDosage').value = suggested.doseText;
+                document.getElementById('medicineQuantity').value = suggested.quantityText || '';
+                document.getElementById('medicinePosology').value = suggested.posology || '';
+                // mostrar explicação curta
+                showDosageNote(suggested.note);
+            }
+            document.getElementById('medicineSuggestions').classList.remove('active');
+        }
+
+        function showDosageNote(text) {
+            let note = document.getElementById('dosageNote');
+            if (!note) {
+                note = document.createElement('div');
+                note.id = 'dosageNote';
+                note.style.marginTop = '8px';
+                note.style.fontSize = '13px';
+                note.style.color = '#6b7280';
+                document.getElementById('medicinesList').parentNode.insertBefore(note, document.getElementById('medicinesList'));
+            }
+            note.innerText = text || '';
+        }
+
+        // Helper: calcula doses por peso
+        function calcularDosePorPeso(med, weight, dosesPerDay, defaultInterval, age, sex) {
+            const doseMgRaw = med.adultDoseMgKg * weight;
+            const dosePerDose = Math.min(doseMgRaw, med.maxPerDoseMg || doseMgRaw);
+            const dosePerDoseRounded = Math.round(dosePerDose);
+
+            let tabletsPerDose = null;
+            let quantityText = `${dosesPerDay} doses/dia`;
+            if (med.unitMg) {
+                tabletsPerDose = Math.max(1, Math.round(dosePerDoseRounded / med.unitMg));
+                const duration = med.defaultDurationDays || 7;
+                const totalTablets = tabletsPerDose * dosesPerDay * duration;
+                quantityText = `${totalTablets} comprimidos (por ${duration} dias)`;
+            }
+
+            const doseText = `${dosePerDoseRounded} mg (${med.adultDoseMgKg} mg/kg)`;
+            const posology = med.unitMg ? `${tabletsPerDose} comprimido(s) de ${med.unitMg} mg a cada ${defaultInterval}h (${dosesPerDay}x/dia)` : `Tomar ${dosePerDoseRounded} mg a cada ${defaultInterval}h (${dosesPerDay}x/dia)`;
+
+            let note = `Sugestão baseada em peso (${weight} kg). Verificar contra-indicações e ajuste por idade/insuficiência renal.`;
+            if (!isNaN(age)) note += ` Idade: ${age} anos.`;
+            if (sex) note += ` Sexo: ${sex}.`;
+
+            return { doseText, quantityText, posology, note };
+        }
+
+        // Helper: calcula dose padrão
+        function calcularDosePadrao(med, dosesPerDay, defaultInterval, age, sex) {
+            const dosePerDose = med.standardDoseMg;
+            const doseText = `${dosePerDose} mg (dose padrão)`;
+            const duration = med.defaultDurationDays || 30;
+            let quantityText = '';
+            if (med.unitMg) {
+                const tabletsPerDose = Math.max(1, Math.round(dosePerDose / med.unitMg));
+                const totalTablets = tabletsPerDose * dosesPerDay * duration;
+                quantityText = `${totalTablets} comprimidos (por ${duration} dias)`;
+            }
+            const posology = med.unitMg ? `${Math.max(1, Math.round(dosePerDose / med.unitMg))} comprimido(s) de ${med.unitMg} mg a cada ${defaultInterval}h (${dosesPerDay}x/dia)` : `Tomar ${dosePerDose} mg a cada ${defaultInterval}h (${dosesPerDay}x/dia)`;
+
+            let note = `Dose padrão para adultos.`;
+            if (!isNaN(age)) note += ` Idade: ${age} anos.`;
+            if (sex) note += ` Sexo: ${sex}.`;
+            return { doseText, quantityText, posology, note };
+        }
+
+        function calculateDose(med) {
+            const weight = parseFloat(document.getElementById('patientWeight').value);
+            const age = parseFloat(document.getElementById('patientAge').value);
+            const sex = document.getElementById('patientSex').value;
+
+            const defaultInterval = med.intervalHours || 8;
+            let dosesPerDay = Math.round(24 / defaultInterval);
+            if (dosesPerDay <= 0) dosesPerDay = 1;
+
+            if (med.adultDoseMgKg && weight > 0) {
+                return calcularDosePorPeso(med, weight, dosesPerDay, defaultInterval, age, sex);
+            }
+
+            if (med.standardDoseMg) {
+                return calcularDosePadrao(med, dosesPerDay, defaultInterval, age, sex);
+            }
+
+            return null;
+        }
+
+        // Catálogo extenso de medicamentos (lista ilustrativa e não-exaustiva ~220 itens)
+        const medicineCatalog = [
+            'Paracetamol','Ibuprofeno','Dipirona','Amoxicilina','Azitromicina','Cefalexina','Ciprofloxacino','Levofloxacino','Claritromicina','Metronidazol',
+            'Cefoxitina','Ceftriaxona','Cefuroxima','Doxiciclina','Tetraciclina','Clindamicina','Vancomicina','Linezolida','Nitrofurantoína','Sulfametoxazol/Trimetoprim',
+            'Losartana Potássica','Amlodipina','Enalapril','Captopril','Bramipril','Metoprolol','Propranolol','Carvedilol','Clonidina','Hidroclorotiazida',
+            'Furosemida','Espironolactona','Atorvastatina','Sinvastatina','Rosuvastatina','Fenofibrato','Ezetimiba','Niacina','AAS (ácido acetilsalicílico)','Clopidogrel',
+            'Prasugrel','Ticagrelor','Warfarina','Rivaroxabana','Apixabana','Dabigatrana','Heparina','Enoxaparina','Protamina','Digoxina',
+            'Amiodarona','Sotalol','Diltiazem','Verapamil','Nifedipina','Isossorbida Mononitrato','Isossorbida Dinitrato','Nitroglicerina','Ivabradina','Aspirina',
+            'Metformina','Gliclazida','Glimepirida','Insulina NPH','Insulina Regular','Insulina Detemir','Insulina Glargina','Sitagliptina','Saxagliptina','Empagliflozina',
+            'Canagliflozina','Dapagliflozina','Pioglitazona','Rosiglitazona','Acarbose','Agmatina','Levotiroxina','Propiltiouracil','Metimazol','Carbimazol',
+            'Omeprazol','Pantoprazol','Lansoprazol','Esomeprazol','Ranitidina','Famotidina','Sucralfato','Domperidona','Metoclopramida','Ondansetrona',
+            'Prometazina','Meclizina','Loperamida','Macrogol','Bisacodil','Senna','Salmeterol','Formoterol','Ipratrópio','Budesonida',
+            'Beclometasona','Fluticasona','Montelucaste','Prednisolona','Dexametasona','Hidrocortisona','Metilprednisolona','Brometo de Tiotrópio','Tiotropio','Aclidinio',
+            'Cetirizina','Loratadina','Desloratadina','Fexofenadina','Levocetirizina','Risperidona','Olanzapina','Quetiapina','Haloperidol','Clorpromazina',
+            'Diazepam','Clonazepam','Lorazepam','Alprazolam','Buspirona','Fluoxetina','Sertralina','Paroxetina','Escitalopram','Citalopram',
+            'Valproato','Carbamazepina','Lamotrigina','Levetiracetam','Topiramato','Gabapentina','Pregabalina','Lithium','Metilfenidato','Atomoxetina',
+            'Sildenafil','Tadalafil','Vardenafil','Finasterida','Dutasterida','Tamsulosina','Silodosina','Alprostadil','Bicalutamida','Anastrozol',
+            'Letrozol','Tamoxifeno','Trastuzumabe','Bevacizumabe','Cetuximabe','Methotrexato','Ciclosporina','Tacrolimo','Azatioprina','Micofenolato',
+            'Prednisona','Metotrexato','Colchicina','Alopurinol','Febuxostate','Probenecida','Allopurinol','Naproxeno','Piroxicam','Celecoxibe',
+            'Ketorolaco','Tramadol','Codeína','Morfina','Oxicodona','Fentanil','Buprenorfina','Metadona','Gabapentina','Pregabalina',
+            'Amoxicilina/Clavulanato','Cefazolina','Cefoperazona','Cefepima','Meropenem','Imipenem','Ertapenem','Polimixina','Colistina','Rifampicina',
+            'Isoniazida','Pirazinamida','Etambutol','Pirazinamida','Isoniazida','Rifabutina','Rifapentina','Lamivudina','Zidovudina','Tenofovir',
+            'Efavirenz','Dolutegravir','Raltegravir','Atazanavir','Darunavir','Lopinavir/Ritonavir','Prednisolona (inalatória)','Bromexina','Ambroxol','Acetilcisteína',
+            'Vitamina D','Vitamina B12','Ácido Fólico','Ferro Sérico','Complexo B','Vitamina C','Cálcio Carbonato','Carbonato de Magnésio','Sulfato de Zinco','Selenium',
+            'Cloreto de Potássio','Solução Ringer','Colchicina','Hidroclorotiazida','Clortalidona','Metolazona','Spironolactona','Eplerenona','Amilorida','Triamtereno',
+            'Naproxeno','Celecoxibe','Meloxicam','Etoricoxibe','Tizanidina','Baclofeno','Ciclobenzaprina','Metocarbamol','Duloxetina','Milnaciprano',
+            'Losartana/Hidroclorotiazida','Enalapril/Hidroclorotiazida','Fentanil TTS','Oxicodona/Naloxona','Cetoconazol','Fluconazol','Itraconazol','Voriconazol','Anfotericina B','Nystatina',
+            'Metformina XR','Semaglutida','Liraglutida','Insulina Lispro','Insulina Aspart','Insulina Degludec','Exenatida','Dapagliflozina/Metformina','Empagliflozina/Metformina','Sitagliptina/Metformina'
+        ];
+
+        // Catálogos de exames por categoria (listas padrão)
+        const examCatalogs = {
+            crianca: [
+                "Hemograma Completo", "Parasitológico de Fezes", "Urina Tipo I", "Glicemia de Jejum", "Parasitológico de Fezes (Método Hoffman)",
+                "Coprocultura", "Ureia", "Creatinina", "Transaminases (TGO/TGP)", "Bilirrubinas Totais e Fracionadas",
+                "Fosfatase Alcalina", "Gama GT", "Colesterol Total", "Triglicerídeos", "HDL-Colesterol", "LDL-Colesterol",
+                "Vitamina D", "Ferro Sérico", "Ferritina", "Calcio Total", "Fósforo", "Magnésio", "Sódio", "Potássio", "Cloro",
+                "TSH", "T4 Livre", "T3 Total", "Paratormônio (PTH)", "Proteína C Reativa (PCR)", "Fator Reumatoide",
+                "Anticorpos Anti-DNA", "Complemento C3", "Complemento C4", "Hemocultura", "Urocultura", "Coprocultura",
+                "Cultura de Escarro", "Teste do Pezinho Ampliado", "Triagem Neonatal", "Audiometria", "Eletroencefalograma (EEG)",
+                "Ecocardiograma", "Ultrassonografia Abdominal", "Ultrassonografia Pélvica", "Raio-X de Tórax", "Raio-X de Ossos",
+                "Densitometria Óssea", "Tomografia Computadorizada (TC)", "Ressonância Magnética (RM)"
+            ],
+            adolescente: [
+                "Hemograma Completo", "Parasitológico de Fezes", "Urina Tipo I", "Glicemia de Jejum", "Curva Glicêmica",
+                "Hemoglobina Glicada (HbA1c)", "Parasitológico de Fezes (Método Hoffman)", "Coprocultura", "Ureia", "Creatinina",
+                "Transaminases (TGO/TGP)", "Bilirrubinas Totais e Fracionadas", "Fosfatase Alcalina", "Gama GT", "Colesterol Total",
+                "Triglicerídeos", "HDL-Colesterol", "LDL-Colesterol", "Vitamina D", "Ferro Sérico", "Ferritina", "Calcio Total",
+                "Fósforo", "Magnésio", "Sódio", "Potássio", "Cloro", "TSH", "T4 Livre", "T3 Total", "Paratormônio (PTH)",
+                "Proteína C Reativa (PCR)", "Fator Reumatoide", "Anticorpos Anti-DNA", "Complemento C3", "Complemento C4",
+                "Hemocultura", "Urocultura", "Coprocultura", "Cultura de Escarro", "Teste de Gravidez", "Beta-HCG",
+                "Hormônio Folículo Estimulante (FSH)", "Hormônio Luteinizante (LH)", "Prolactina", "Testosterona Total",
+                "Testosterona Livre", "Estradiol", "Progesterona", "Cortisol", "ACTH", "Audiometria", "Eletroencefalograma (EEG)",
+                "Ecocardiograma", "Ultrassonografia Abdominal", "Ultrassonografia Pélvica", "Ultrassonografia Transvaginal",
+                "Raio-X de Tórax", "Raio-X de Ossos", "Mamografia", "Densitometria Óssea", "Tomografia Computadorizada (TC)",
+                "Ressonância Magnética (RM)"
+            ],
+            mulher: [
+                "Hemograma Completo", "Parasitológico de Fezes", "Urina Tipo I", "Glicemia de Jejum", "Curva Glicêmica",
+                "Hemoglobina Glicada (HbA1c)", "Parasitológico de Fezes (Método Hoffman)", "Coprocultura", "Ureia", "Creatinina",
+                "Transaminases (TGO/TGP)", "Bilirrubinas Totais e Fracionadas", "Fosfatase Alcalina", "Gama GT", "Colesterol Total",
+                "Triglicerídeos", "HDL-Colesterol", "LDL-Colesterol", "Vitamina D", "Ferro Sérico", "Ferritina", "Calcio Total",
+                "Fósforo", "Magnésio", "Sódio", "Potássio", "Cloro", "TSH", "T4 Livre", "T3 Total", "Paratormônio (PTH)",
+                "Proteína C Reativa (PCR)", "Fator Reumatoide", "Anticorpos Anti-DNA", "Complemento C3", "Complemento C4",
+                "Hemocultura", "Urocultura", "Coprocultura", "Cultura de Escarro", "Teste de Gravidez", "Beta-HCG",
+                "Hormônio Folículo Estimulante (FSH)", "Hormônio Luteinizante (LH)", "Prolactina", "Testosterona Total",
+                "Testosterona Livre", "Estradiol", "Progesterona", "Cortisol", "ACTH", "CA-125", "CA-15.3", "CEA",
+                "Audiometria", "Eletroencefalograma (EEG)", "Ecocardiograma", "Ultrassonografia Abdominal", "Ultrassonografia Pélvica",
+                "Ultrassonografia Transvaginal", "Ultrassonografia Mamária", "Raio-X de Tórax", "Raio-X de Ossos", "Mamografia",
+                "Densitometria Óssea", "Colposcopia", "Papanicolau", "Tomografia Computadorizada (TC)", "Ressonância Magnética (RM)",
+                "Ressonância Magnética Mamária"
+            ],
+            homem: [
+                "Hemograma Completo", "Parasitológico de Fezes", "Urina Tipo I", "Glicemia de Jejum", "Curva Glicêmica",
+                "Hemoglobina Glicada (HbA1c)", "Parasitológico de Fezes (Método Hoffman)", "Coprocultura", "Ureia", "Creatinina",
+                "Transaminases (TGO/TGP)", "Bilirrubinas Totais e Fracionadas", "Fosfatase Alcalina", "Gama GT", "Colesterol Total",
+                "Triglicerídeos", "HDL-Colesterol", "LDL-Colesterol", "Vitamina D", "Ferro Sérico", "Ferritina", "Calcio Total",
+                "Fósforo", "Magnésio", "Sódio", "Potássio", "Cloro", "TSH", "T4 Livre", "T3 Total", "Paratormônio (PTH)",
+                "Proteína C Reativa (PCR)", "Fator Reumatoide", "Anticorpos Anti-DNA", "Complemento C3", "Complemento C4",
+                "Hemocultura", "Urocultura", "Coprocultura", "Cultura de Escarro", "PSA Total", "PSA Livre",
+                "Antígeno Prostático Específico (PSA)", "Testosterona Total", "Testosterona Livre", "Cortisol", "ACTH",
+                "Audiometria", "Eletroencefalograma (EEG)", "Ecocardiograma", "Ultrassonografia Abdominal", "Ultrassonografia Prostática",
+                "Raio-X de Tórax", "Raio-X de Ossos", "Densitometria Óssea", "Tomografia Computadorizada (TC)", "Ressonância Magnética (RM)"
+            ]
+        };
+
+        async function openMedicineModal() {
+            // Tentativa automática de carregar catálogo grande da pasta medicacoes
+            try {
+                const resp = await fetch('medicacoes/medicamentos_full.json');
+                if (resp.ok) {
+                    const data = await resp.json();
+                    applyMedicationsToMemory(data);
+                }
+            } catch (err) {
+                // fetch pode falhar em file:// — isso é esperado; apenas logamos
+                console.debug('Não foi possível carregar automaticamente o catálogo grande:', err.message);
+            }
+
+            populateMedicineModal();
+            document.getElementById('medicineModal').classList.add('active');
+            document.getElementById('medicineModal').setAttribute('aria-hidden','false');
+        }
+
+        function closeMedicineModal() {
+            document.getElementById('medicineModal').classList.remove('active');
+            document.getElementById('medicineModal').setAttribute('aria-hidden','true');
+        }
+
+        // Funções para modal de exames
+        async function openExamModal() {
+            document.getElementById('examModal').classList.add('active');
+            document.getElementById('examModal').setAttribute('aria-hidden','false');
+        }
+
+        function closeExamModal() {
+            document.getElementById('examModal').classList.remove('active');
+            document.getElementById('examModal').setAttribute('aria-hidden','true');
+        }
+
+        async function loadExamCategory(category) {
+            const pathMap = {
+                'crianca': 'exames.crianca/exames_crianca.json',
+                'adolescente': 'exames.adolescente/exames_adolescente.json',
+                'mulher': 'exames.mulher/exames_mulher.json',
+                'homem': 'exames.homem/exames_homem.json'
+            };
+
+            try {
+                const response = await fetch(pathMap[category]);
+                if (response.ok) {
+                    const exams = await response.json();
+                    window.currentExamCatalog = exams;
+                    populateExamModal(exams);
+                } else {
+                    throw new Error('Response not ok');
+                }
+            } catch (error) {
+                console.warn('Não foi possível carregar exames de arquivo, usando lista padrão:', error.message);
+                // Usar lista padrão se fetch falhar
+                const exams = examCatalogs[category] || [];
+                window.currentExamCatalog = exams;
+                populateExamModal(exams);
+            }
+        }
+
+        function populateExamModal(exams) {
+            const container = document.getElementById('modalExamList');
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (!exams || exams.length === 0) {
+                container.innerHTML = '<p style="color:#6b7280; text-align:center;">Nenhum exame disponível.</p>';
+                return;
+            }
+
+            const frag = document.createDocumentFragment();
+            exams.forEach((exam, i) => {
+                const id = `modal-exam-${i}`;
+                const wrapper = document.createElement('div');
+                wrapper.style.display = 'flex';
+                wrapper.style.alignItems = 'center';
+                wrapper.style.gap = '10px';
+                wrapper.style.padding = '6px 4px';
+
+                const input = document.createElement('input');
+                input.type = 'checkbox';
+                input.id = id;
+                input.setAttribute('data-name', exam);
+
+                const label = document.createElement('label');
+                label.htmlFor = id;
+                label.textContent = exam;
+
+                wrapper.appendChild(input);
+                wrapper.appendChild(label);
+                frag.appendChild(wrapper);
+            });
+
+            container.appendChild(frag);
+        }
+
+        function filterExamModal(query) {
+            const container = document.getElementById('modalExamList');
+            const items = container.querySelectorAll('div');
+            const filter = query.toLowerCase();
+
+            items.forEach(item => {
+                const label = item.querySelector('label');
+                if (label) {
+                    const text = label.textContent.toLowerCase();
+                    item.style.display = text.includes(filter) ? 'flex' : 'none';
+                }
+            });
+        }
+
+        function addSelectedExams() {
+            const checkboxes = document.querySelectorAll('#modalExamList input[type="checkbox"]:checked');
+            let addedCount = 0;
+
+            checkboxes.forEach(checkbox => {
+                const examName = checkbox.getAttribute('data-name');
+                if (examName) {
+                    // Adicionar o exame usando a função existente addExam
+                    document.getElementById('examName').value = examName;
+                    addExam();
+                    addedCount++;
+                }
+            });
+
+            if (addedCount > 0) {
+                alert(`${addedCount} exame(s) adicionado(s) com sucesso.`);
+                closeExamModal();
+            } else {
+                alert('Nenhum exame selecionado.');
+            }
+        }
+
+        function addMedicine() {
+            let name = document.getElementById('medicineName').value.trim();
+            let dosage = document.getElementById('medicineDosage').value.trim();
+            let quantity = document.getElementById('medicineQuantity').value.trim();
+            let posology = document.getElementById('medicinePosology').value.trim();
+
+            if (!name) {
+                alert('Por favor, digite o nome do medicamento.');
+                return;
+            }
+
+            // tentar achar metadados do medicamento para preencher automaticamente
+            const med = medicines.find(m => m.name.toLowerCase() === name.toLowerCase());
+            if (med) {
+                const suggested = calculateDose(med);
+                if (suggested) {
+                    if (!dosage) dosage = suggested.doseText || '';
+                    if (!quantity) quantity = suggested.quantityText || '';
+                    if (!posology) posology = suggested.posology || '';
+                    showDosageNote(suggested.note);
+                }
+            }
+
+            const medicinesList = document.getElementById('medicinesList');
+            
+            // Remover mensagem de lista vazia
+            if (medicinesList.querySelector('p')) {
+                medicinesList.innerHTML = '';
+            }
+
+            const medicineItem = document.createElement('div');
+            medicineItem.className = 'medicine-item';
+            // armazenar atributos para uso posterior/preview
+            medicineItem.setAttribute('data-name', name);
+            medicineItem.setAttribute('data-dosage', dosage);
+            medicineItem.setAttribute('data-quantity', quantity);
+            medicineItem.setAttribute('data-posology', posology);
+
+            medicineItem.innerHTML = `
+                <div class="medicine-info">
+                    <strong>${name}</strong><br>
+                    <small>Dosagem: ${dosage} | Quantidade: ${quantity} | Posologia: ${posology}</small>
+                </div>
+                <button class="btn btn-danger" onclick="removeItem(this)" style="padding: 8px 16px; font-size: 14px;">Remover</button>
+            `;
+
+            medicinesList.appendChild(medicineItem);
+
+            // Limpar campos
+            document.getElementById('medicineName').value = '';
+            document.getElementById('medicineDosage').value = '';
+            document.getElementById('medicineQuantity').value = '';
+            document.getElementById('medicinePosology').value = '';
+        }
+        
+        // Adicionar medicamentos selecionados no modal (batch)
+        function addSelectedMedicines() {
+            const checks = Array.from(document.querySelectorAll('#modalMedicineList input[type="checkbox"]:checked'));
+            checks.forEach(ch => {
+                const name = ch.getAttribute('data-name');
+                // preencher campos e adicionar
+                document.getElementById('medicineName').value = name;
+                // tentar achar med no banco para calcular dosagem
+                const med = medicines.find(x => x.name.toLowerCase() === name.toLowerCase());
+                if (med) {
+                    const suggested = calculateDose(med);
+                    if (suggested) {
+                        document.getElementById('medicineDosage').value = suggested.doseText || '';
+                        document.getElementById('medicineQuantity').value = suggested.quantityText || '';
+                        document.getElementById('medicinePosology').value = suggested.posology || '';
+                        showDosageNote(suggested.note);
+                    }
+                }
+                addMedicine();
+            });
+            closeMedicineModal();
+        }
+
+        // Busca de exames (simulada)
+        const exams = [
+            'Hemograma Completo', 'Glicemia de Jejum', 'Colesterol Total', 'Triglicerídeos',
+            'Creatinina', 'Ureia', 'TSH', 'T4 Livre', 'Urina Tipo I', 'Parasitológico de Fezes',
+            'Eletrocardiograma', 'Ecocardiograma', 'Raio X de Tórax', 'Ultrassonografia Abdominal',
+            'Mamografia', 'Papanicolau', 'Colonoscopia', 'Endoscopia Digestiva'
+        ];
+
+        function searchExam(query) {
+            const suggestions = document.getElementById('examSuggestions');
+            if (query.length < 2) {
+                suggestions.classList.remove('active');
+                return;
+            }
+
+            const filtered = exams.filter(exam => 
+                exam.toLowerCase().includes(query.toLowerCase())
+            );
+
+            if (filtered.length > 0) {
+                suggestions.innerHTML = filtered.map(exam => 
+                    `<div class="suggestion-item" onclick="selectExam('${exam}')">${exam}</div>`
+                ).join('');
+                suggestions.classList.add('active');
+            } else {
+                suggestions.classList.remove('active');
+            }
+        }
+
+        function selectExam(name) {
+            document.getElementById('examName').value = name;
+            document.getElementById('examSuggestions').classList.remove('active');
+        }
+
+        // Fechar sugestões ao clicar fora
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.search-box')) {
+                document.querySelectorAll('.autocomplete-suggestions').forEach(sugg => {
+                    sugg.classList.remove('active');
+                });
+            }
+        });
+
+        // --- Suporte para carregar medicações externas ---
+        async function loadExternalMedications() {
+            const url = document.getElementById('externalMedUrl').value.trim();
+            if (!url) {
+                alert('Informe a URL/ caminho do arquivo de medicações.');
+                return;
+            }
+
+            try {
+                const resp = await fetch(url);
+                if (!resp.ok) throw new Error('Falha ao carregar arquivo (status ' + resp.status + ')');
+                const data = await resp.json();
+                applyMedicationsToMemory(data);
+                alert('Lista de medicamentos carregada com sucesso.');
+            } catch (err) {
+                alert('Não foi possível carregar via fetch. Se estiver usando file://, use o upload manual. Erro: ' + err.message);
+                console.error(err);
+            }
+        }
+
+        function handleMedFileUpload(files) {
+            if (!files || files.length === 0) return;
+            const file = files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                try {
+                    if (file.name.toLowerCase().endsWith('.json')) {
+                        const data = JSON.parse(text);
+                        applyMedicationsToMemory(data);
+                        alert('Arquivo JSON importado com sucesso.');
+                    } else {
+                        // tentar CSV
+                        const meds = parseCSVToMeds(text);
+                        applyMedicationsToMemory(meds);
+                        alert('Arquivo CSV importado com sucesso.');
+                    }
+                } catch (err) {
+                    alert('Erro ao processar arquivo: ' + err.message);
+                    console.error(err);
+                }
+            };
+            reader.readAsText(file, 'UTF-8');
+        }
+
+        function parseCSVToMeds(csvText) {
+            // CSV simples: header linha com pelo menos 'name' ou 'id'
+            const lines = csvText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+            if (lines.length === 0) return [];
+            const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+            const rows = lines.slice(1);
+            const meds = rows.map(r => {
+                const cols = r.split(',').map(c => c.trim());
+                const obj = {};
+                headers.forEach((h, i) => {
+                    obj[h] = cols[i] || '';
+                });
+                // converter campos numéricos quando aplicável
+                if (obj.adultdosemgkg) obj.adultDoseMgKg = parseFloat(obj.adultdosemgkg);
+                if (obj.unitmg) obj.unitMg = parseFloat(obj.unitmg);
+                if (obj.defaultdurationdays) obj.defaultDurationDays = parseInt(obj.defaultdurationdays, 10);
+                if (obj.maxperdosemg) obj.maxPerDoseMg = parseFloat(obj.maxperdosemg);
+                if (obj.maxperdaymg) obj.maxPerDayMg = parseFloat(obj.maxperdaymg);
+                // garantir nome/ id
+                if (!obj.name && obj.id) obj.name = obj.id;
+                return obj;
+            });
+            return meds;
+        }
+
+        function applyMedicationsToMemory(list) {
+            if (!Array.isArray(list)) {
+                throw new Error('Formato inválido: espera array de objetos');
+            }
+            // normalizar e substituir arrays em memória
+            const normalized = list.map(item => {
+                return {
+                    id: item.id || (item.name ? item.name.toLowerCase().replace(/\s+/g,'_') : Math.random().toString(36).slice(2,8)),
+                    name: item.name || '',
+                    type: item.type || item.category || '',
+                    adultDoseMgKg: item.adultDoseMgKg || item.adultdosemgkg || null,
+                    maxPerDoseMg: item.maxPerDoseMg || item.maxperdosemg || null,
+                    maxPerDayMg: item.maxPerDayMg || item.maxperdaymg || null,
+                    standardDoseMg: item.standardDoseMg || item.standarddosemg || null,
+                    unitMg: item.unitMg || item.unitmg || null,
+                    defaultDurationDays: item.defaultDurationDays || item.defaultdurationdays || null
+                };
+            });
+
+            // substituir arrays globais
+            window.medicines = normalized;
+            window.medicineCatalog = normalized.map(m => m.name).filter(Boolean);
+            // atualizar modal se estiver aberto
+            if (document.getElementById('medicineModal').classList.contains('active')) {
+                populateMedicineModal();
+            }
+        }
+
+        // Popula o modal com a lista atual de medicamentos (vinda de window.medicineCatalog ou medicineCatalog)
+        function populateMedicineModal() {
+            const container = document.getElementById('modalMedicineList');
+            if (!container) return;
+            container.innerHTML = '';
+
+            // preferir catálogo em memória, poi pode ter sido carregado via arquivo
+            let list = [];
+            if (window.medicineCatalog && Array.isArray(window.medicineCatalog) && window.medicineCatalog.length > 0) {
+                list = window.medicineCatalog;
+            } else if (Array.isArray(medicineCatalog)) {
+                list = medicineCatalog;
+            }
+
+            // Se lista vazia, mostrar mensagem
+            if (list.length === 0) {
+                container.innerHTML = '<p style="color:#6b7280; text-align:center;">Nenhum medicamento disponível. Importe ou gere a lista em Configurações.</p>';
+                return;
+            }
+
+            const frag = document.createDocumentFragment();
+            list.forEach((m, i) => {
+                const id = `modal-med-${i}`;
+                const wrapper = document.createElement('div');
+                wrapper.style.display = 'flex';
+                wrapper.style.alignItems = 'center';
+                wrapper.style.gap = '10px';
+                wrapper.style.padding = '6px 4px';
+
+                const input = document.createElement('input');
+                input.type = 'checkbox';
+                input.id = id;
+                input.setAttribute('data-name', m);
+
+                const label = document.createElement('label');
+                label.htmlFor = id;
+                label.textContent = m;
+
+                wrapper.appendChild(input);
+                wrapper.appendChild(label);
+                frag.appendChild(wrapper);
+            });
+
+            container.appendChild(frag);
+        }
+
+        function resetToBuiltin() {
+            // recarrega a página para restaurar os valores embutidos
+            if (confirm('Deseja recarregar a página para restaurar a lista embutida?')) {
+                window.location.reload();
+            }
+        }
+
+        // Gera um catálogo padronizado com 'count' entradas (para geração local)
+        function generateCatalog(count) {
+            const baseTypes = ['analgésico','antibiótico','antifúngico','antiviral','antihipertensivo','antidiabético','psicotrópico','anti-inflamatório','antialérgico','gastroprotetor'];
+            const units = [50,100,125,150,200,250,300,400,500];
+            const catalog = [];
+            for (let i = 1; i <= count; i++) {
+                const name = `Medicação ${i}`;
+                const id = `med_${i}`;
+                const type = baseTypes[i % baseTypes.length];
+                const unitMg = units[i % units.length];
+                const defaultDurationDays = (i % 2 === 0) ? 7 : 14;
+                const obj = {
+                    id,
+                    name,
+                    type,
+                    unitMg,
+                    defaultDurationDays
+                };
+                // para algumas entradas, adicionar adultDoseMgKg para permitir cálculo
+                if (i % 3 === 0) {
+                    obj.adultDoseMgKg = 10 + (i % 6); // 10-15 mg/kg
+                    obj.maxPerDoseMg = Math.max(200, obj.adultDoseMgKg * 70);
+                    obj.maxPerDayMg = obj.maxPerDoseMg * 3;
+                } else if (i % 5 === 0) {
+                    obj.standardDoseMg = unitMg * Math.max(1, Math.round((50 + (i%100)) / unitMg));
+                }
+                catalog.push(obj);
+            }
+            return catalog;
+        }
+
+        function generateAndDownloadCatalog() {
+            const count = parseInt(document.getElementById('generateCount').value, 10) || 3000;
+            if (!confirm(`Gerar e baixar catálogo com ${count} medicações? Isso pode gerar um arquivo grande.`)) return;
+            const data = generateCatalog(count);
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `medicacoes_medicos_catalog_${count}.json`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+        }
+    </script>
+    
+    <!-- Modal de Lista de Medicamentos -->
+    <div class="modal" id="medicineModal" aria-hidden="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Lista de Medicamentos - Checklist</h3>
+                <button class="close-modal" onclick="closeMedicineModal()">✕</button>
+            </div>
+            <div style="margin-bottom:12px;">
+                <input type="text" id="modalMedicineSearch" placeholder="Pesquisar medicamento..." onkeyup="filterMedicineModal(this.value)" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:8px;">
+            </div>
+            <div style="max-height:400px; overflow-y:auto; border:1px solid var(--border); padding:10px; border-radius:8px;">
+                <div id="modalMedicineList">
+                    <!-- Lista gerada dinamicamente -->
+                </div>
+            </div>
+            <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:12px;">
+                <button class="btn btn-success" onclick="addSelectedMedicines()">Adicionar Selecionados</button>
+                <button class="btn" onclick="closeMedicineModal()">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Lista de Exames -->
+    <div class="modal" id="examModal" aria-hidden="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Lista de Exames - Seleção por Categoria</h3>
+                <button class="close-modal" onclick="closeExamModal()">✕</button>
+            </div>
+            <div style="margin-bottom:12px;">
+                <label>Selecione a categoria:</label>
+                <div style="display:flex; gap:10px; margin-top:8px;">
+                    <button class="btn btn-outline" onclick="loadExamCategory('crianca')">👶 Criança</button>
+                    <button class="btn btn-outline" onclick="loadExamCategory('adolescente')">🧑 Adolescente</button>
+                    <button class="btn btn-outline" onclick="loadExamCategory('mulher')">👩 Mulher</button>
+                    <button class="btn btn-outline" onclick="loadExamCategory('homem')">👨 Homem</button>
+                </div>
+            </div>
+            <div style="margin-bottom:12px;">
+                <input type="text" id="modalExamSearch" placeholder="Pesquisar exame..." onkeyup="filterExamModal(this.value)" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:8px;">
+            </div>
+            <div style="max-height:400px; overflow-y:auto; border:1px solid var(--border); padding:10px; border-radius:8px;">
+                <div id="modalExamList">
+                    <p style="color:#6b7280; text-align:center;">Selecione uma categoria para carregar os exames.</p>
+                </div>
+            </div>
+            <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:12px;">
+                <button class="btn btn-success" onclick="addSelectedExams()">Adicionar Selecionados</button>
+                <button class="btn" onclick="closeExamModal()">Fechar</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

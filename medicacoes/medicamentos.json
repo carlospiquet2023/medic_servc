@@ -1,0 +1,5 @@
+[
+  { "id": "paracetamol", "name": "Paracetamol", "type": "analgésico", "adultDoseMgKg": 15, "maxPerDoseMg": 1000, "maxPerDayMg": 4000, "unitMg": 500, "defaultDurationDays": 3 },
+  { "id": "ibuprofeno", "name": "Ibuprofeno", "type": "anti-inflamatório", "adultDoseMgKg": 10, "maxPerDoseMg": 400, "maxPerDayMg": 1200, "unitMg": 400, "defaultDurationDays": 3 },
+  { "id": "amoxicilina", "name": "Amoxicilina", "type": "antibiótico", "adultDoseMgKg": 25, "maxPerDoseMg": 1000, "maxPerDayMg": 3000, "unitMg": 500, "defaultDurationDays": 7 }
+]
