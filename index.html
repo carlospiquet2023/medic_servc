@@ -1897,18 +1897,7 @@
 
             container.appendChild(frag);
 
-            // atualizar indicação de fonte e ultima URL tentada
-            try {
-                const info = document.getElementById('medicineSourceInfo');
-                const tried = document.getElementById('medicineTriedUrl');
-                if (info) info.textContent = `Fonte: ${source}`;
-                if (tried) {
-                    const arr = Array.isArray(window._medicineLoadAttempts) ? window._medicineLoadAttempts : [];
-                    tried.textContent = arr.length ? `Tentadas: ${arr.join(' | ')}` : '';
-                }
-            } catch(e) {
-                // noop
-            }
+            // debug info removed by user request
         }
 
         async function forceReloadMedicaments() {
@@ -2000,6 +1989,51 @@
             a.remove();
             URL.revokeObjectURL(url);
         }
+
+        // --- Auto-preload do catálogo grande para hospedagem (ex: GitHub Pages) ---
+        document.addEventListener('DOMContentLoaded', async function() {
+            function detectBasePath() {
+                try {
+                    const url = new URL(document.baseURI || window.location.href);
+                    // retorna caminho com / no final: '/repo/' ou '/'
+                    return url.pathname.replace(/\/index\.html$|\/$/, '/') || '/';
+                } catch (e) {
+                    return '/';
+                }
+            }
+
+            const base = detectBasePath();
+            const externalInput = document.getElementById('externalMedUrl');
+            if (externalInput && !externalInput.value.trim()) {
+                // prefira caminho absoluto ajustado ao base
+                const candidate = base.replace(/\/$/, '') + '/medicacoes/medicamentos_full.json';
+                externalInput.value = candidate;
+            }
+
+            // tentar carregar automaticamente alguns candidatos para popular window.medicineCatalog
+            const candidates = [];
+            if (externalInput && externalInput.value.trim()) candidates.push(externalInput.value.trim());
+            candidates.push('medicacoes/medicamentos_full.json');
+            candidates.push(base.replace(/\/$/, '') + '/medicacoes/medicamentos_full.json');
+
+            window._medicineLoadAttempts = [];
+            for (const c of candidates) {
+                try {
+                    window._medicineLoadAttempts.push(c);
+                    const resp = await fetch(c);
+                    if (resp.ok) {
+                        const data = await resp.json();
+                        applyMedicationsToMemory(data);
+                        console.debug('Catálogo grande carregado automaticamente de', c);
+                        break;
+                    } else {
+                        console.debug('Tentativa de carregar catálogo retornou', resp.status, c);
+                    }
+                } catch (err) {
+                    console.debug('Falha ao tentar carregar catálogo em', c, err.message || err);
+                }
+            }
+        });
     </script>
     
     <!-- Modal de Lista de Medicamentos -->
@@ -2013,10 +2047,7 @@
                 <input type="text" id="modalMedicineSearch" placeholder="Pesquisar medicamento..." onkeyup="filterMedicineModal(this.value)" style="flex:1; padding:10px; border:1px solid var(--border); border-radius:8px;">
                 <button class="btn btn-primary" style="padding:8px 12px;" onclick="forceReloadMedicaments()">Recarregar</button>
             </div>
-            <div style="margin-bottom:8px; font-size:13px; color:#6b7280; display:flex; justify-content:space-between; align-items:center;">
-                <div id="medicineSourceInfo">Fonte: embutida</div>
-                <div id="medicineTriedUrl" style="font-family:monospace; font-size:12px; color:#9ca3af;">&nbsp;</div>
-            </div>
+            <!-- removed debug info per user request -->
             <div style="max-height:400px; overflow-y:auto; border:1px solid var(--border); padding:10px; border-radius:8px;">
                 <div id="modalMedicineList">
                     <!-- Lista gerada dinamicamente -->
