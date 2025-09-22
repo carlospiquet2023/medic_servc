@@ -1495,8 +1495,17 @@
                 base.replace(/\/$/, '') + '/medicacoes/medicamentos.json'
             ].map(s => s ? s : null).filter(Boolean);
 
+            // registrar tentativas para debug/visualização
+            window._medicineLoadAttempts = [];
+            async function tryLoadWithLogging(paths) {
+                for (const p of paths) {
+                    window._medicineLoadAttempts.push(p);
+                }
+                return await tryLoadMedicaments(paths);
+            }
+
             try {
-                const ok = await tryLoadMedicaments(candidates);
+                const ok = await tryLoadWithLogging(candidates);
                 if (!ok) console.debug('Não foi possível carregar automaticamente o catálogo grande: nenhum dos caminhos funcionou');
             } catch (err) {
                 console.debug('Erro inesperado ao tentar carregar catálogo:', err.message || err);
@@ -1848,10 +1857,13 @@
 
             // preferir catálogo em memória, poi pode ter sido carregado via arquivo
             let list = [];
+            let source = 'embutida';
             if (window.medicineCatalog && Array.isArray(window.medicineCatalog) && window.medicineCatalog.length > 0) {
                 list = window.medicineCatalog;
+                source = 'externa (memória)';
             } else if (Array.isArray(medicineCatalog)) {
                 list = medicineCatalog;
+                source = 'embutida';
             }
 
             // Se lista vazia, mostrar mensagem
@@ -1884,6 +1896,56 @@
             });
 
             container.appendChild(frag);
+
+            // atualizar indicação de fonte e ultima URL tentada
+            try {
+                const info = document.getElementById('medicineSourceInfo');
+                const tried = document.getElementById('medicineTriedUrl');
+                if (info) info.textContent = `Fonte: ${source}`;
+                if (tried) {
+                    const arr = Array.isArray(window._medicineLoadAttempts) ? window._medicineLoadAttempts : [];
+                    tried.textContent = arr.length ? `Tentadas: ${arr.join(' | ')}` : '';
+                }
+            } catch(e) {
+                // noop
+            }
+        }
+
+        async function forceReloadMedicaments() {
+            const url = document.getElementById('externalMedUrl') ? document.getElementById('externalMedUrl').value.trim() : '';
+            const toTry = [];
+            if (url) toTry.push(url);
+            // também tentar caminhos comuns
+            toTry.push('medicacoes/medicamentos_full.json', 'medicacoes/medicamentos.json');
+            window._medicineLoadAttempts = [];
+            try {
+                const ok = await (async function(paths){
+                    for (const p of paths) {
+                        window._medicineLoadAttempts.push(p);
+                        try {
+                            const r = await fetch(p);
+                            if (r.ok) {
+                                const d = await r.json();
+                                applyMedicationsToMemory(d);
+                                return true;
+                            }
+                        } catch(e) {
+                            console.debug('forceReload falhou ao buscar', p, e.message || e);
+                        }
+                    }
+                    return false;
+                })(toTry);
+                if (ok) {
+                    populateMedicineModal();
+                    alert('Lista de medicamentos carregada com sucesso.');
+                } else {
+                    populateMedicineModal();
+                    alert('Não foi possível carregar a lista externa. Verifique a URL em Configurações ou o Console do navegador para detalhes.');
+                }
+            } catch(e) {
+                console.debug('Erro em forceReloadMedicaments:', e.message || e);
+                alert('Erro ao tentar carregar a lista externa. Veja console para detalhes.');
+            }
         }
 
         function resetToBuiltin() {
@@ -1947,8 +2009,13 @@
                 <h3>Lista de Medicamentos - Checklist</h3>
                 <button class="close-modal" onclick="closeMedicineModal()">✕</button>
             </div>
-            <div style="margin-bottom:12px;">
-                <input type="text" id="modalMedicineSearch" placeholder="Pesquisar medicamento..." onkeyup="filterMedicineModal(this.value)" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:8px;">
+            <div style="margin-bottom:12px; display:flex; gap:8px; align-items:center;">
+                <input type="text" id="modalMedicineSearch" placeholder="Pesquisar medicamento..." onkeyup="filterMedicineModal(this.value)" style="flex:1; padding:10px; border:1px solid var(--border); border-radius:8px;">
+                <button class="btn btn-primary" style="padding:8px 12px;" onclick="forceReloadMedicaments()">Recarregar</button>
+            </div>
+            <div style="margin-bottom:8px; font-size:13px; color:#6b7280; display:flex; justify-content:space-between; align-items:center;">
+                <div id="medicineSourceInfo">Fonte: embutida</div>
+                <div id="medicineTriedUrl" style="font-family:monospace; font-size:12px; color:#9ca3af;">&nbsp;</div>
             </div>
             <div style="max-height:400px; overflow-y:auto; border:1px solid var(--border); padding:10px; border-radius:8px;">
                 <div id="modalMedicineList">
